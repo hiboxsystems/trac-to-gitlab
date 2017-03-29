@@ -109,13 +109,13 @@ class Connection(object):
         event.save()
         for title in set(new_issue.labels.split(',')):
             try:
-                label = Labels.get((Labels.title == title) & (Labels.project == dest_project_id))
+                label = Labels.get(Labels.title == title)
             except:
                 label = Labels.create(
                     title=title,
                     color='#0000FF',
-                    project=dest_project_id,
-                    type='ProjectLabel',
+                    group=5,
+                    type='GroupLabel',
                     created_at=new_issue.created_at,
                     update_at=new_issue.created_at
                 )
