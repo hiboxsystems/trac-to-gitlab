@@ -30,14 +30,21 @@ class Connection(object):
 
     def clear_issues(self, project_id):
 
+        # Delete all custom issue boards.
+        print("removing issue boards")
+        for list in Lists.select():
+            list.delete_instance()
+
         # Delete all the uses of the labels of the project.
-        for label in Labels.select().where( Labels.project == project_id ):
+        print("removing labels")
+        for label in Labels.select():
             LabelLinks.delete().where( LabelLinks.label == label.id ).execute()
             ## You probably do not want to delete the labels themselves, otherwise you'd need to
             ## set their colour every time when you re-run the migration.
             #label.delete_instance()
 
         # Delete issues and everything that goes with them...
+        print("removing issues")
         for issue in Issues.select().where(Issues.project == project_id):
             for note in Notes.select().where( (Notes.project == project_id) & (Notes.noteable_type == 'Issue') & (Notes.noteable == issue.id)):
                 if note.attachment != None:
@@ -52,6 +59,7 @@ class Connection(object):
             Events.delete().where( (Events.project == project_id) & (Events.target_type == 'Issue' ) & (Events.target == issue.id) ).execute()
             issue.delete_instance()
 
+        print("removing milestones")
         Milestones.delete().where( Milestones.project == project_id ).execute()
 
     def milestone_by_name(self, project_id, milestone_name):
