@@ -181,12 +181,6 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         elif src_ticket_resolution == 'worksforme':
             new_labels.append('works for me')
 
-        if src_ticket_version:
-            if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
-                pass
-            else:
-                new_labels.append('release-%s' % src_ticket_version)
-
         # if src_ticket_severity == 'high':
         #     new_labels.append('critical')
         # elif src_ticket_severity == 'medium':
@@ -227,6 +221,24 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             labels=",".join(new_labels)
         )
 
+        if src_ticket_version:
+            if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
+                pass
+            else:
+                release_milestone_name = 'release-%s' % src_ticket_version
+                if release_milestone_name not in milestone_map_id:
+                    print("creating new milestone for %s" % release_milestone_name)
+                    new_milestone = Milestones(
+                        title=release_milestone_name,
+                        description='',
+                        state='closed'
+                    )
+                    if method == 'direct':
+                        new_milestone.project = dest_project_id
+                    new_milestone = dest.create_milestone(dest_project_id, new_milestone)
+                    milestone_map_id[release_milestone_name] = new_milestone.id
+                new_issue.milestone = milestone_map_id[release_milestone_name]
+
         if src_ticket_data['owner'] != '':
             try:
                 new_issue.assignee = dest.get_user_id(users_map[src_ticket_data['owner']])
@@ -247,7 +259,7 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             else:
                 new_issue.iid = dest.get_issues_iid(dest_project_id)
 
-        if 'milestone' in src_ticket_data:
+        if 'milestone' in src_ticket_data and not new_issue.milestone:
             milestone = src_ticket_data['milestone']
             if milestone and milestone_map_id[milestone]:
                 new_issue.milestone = milestone_map_id[milestone]
