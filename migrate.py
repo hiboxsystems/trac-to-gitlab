@@ -140,6 +140,8 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 
     get_all_tickets = xmlrpclib.MultiCall(source)
 
+    gitlab_user_cache = {}
+
     print("getting all tickets from trac")
     for ticket in source.ticket.query("max=0&order=id"):
         get_all_tickets.ticket.get(ticket)
@@ -243,9 +245,9 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 
         if src_ticket_data['owner'] != '':
             try:
-                new_issue.assignee = dest.get_user_id(users_map[src_ticket_data['owner']])
+                new_issue.assignee = get_cached_user_id(dest, gitlab_user_cache,users_map[src_ticket_data['owner']])
             except KeyError:
-                new_issue.assignee = dest.get_user_id(default_user)
+                new_issue.assignee = get_cached_user_id(dest, gitlab_user_cache, default_user)
         # Additional parameters for direct access
         if method == 'direct':
             new_issue.created_at = convert_xmlrpc_datetime(src_ticket[1])
@@ -253,9 +255,9 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             new_issue.project = dest_project_id
             new_issue.state = new_state
             try:
-                new_issue.author = dest.get_user_id(users_map[src_ticket_data['reporter']])
+                new_issue.author = get_cached_user_id(dest, gitlab_user_cache, users_map[src_ticket_data['reporter']])
             except KeyError:
-                new_issue.author = dest.get_user_id(default_user)
+                new_issue.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
             if overwrite:
                 new_issue.iid = src_ticket_id
             else:
@@ -285,9 +287,9 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
                     note.created_at = convert_xmlrpc_datetime(change[0])
                     note.updated_at = convert_xmlrpc_datetime(change[0])
                     try:
-                        note.author = dest.get_user_id(users_map[change[1]])
+                        note.author = get_cached_user_id(dest, gitlab_user_cache, users_map[change[1]])
                     except KeyError:
-                        note.author = dest.get_user_id(default_user)
+                        note.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
                     if is_attachment:
                         note.attachment = attachment[4]
                         print("migrating attachment for ticket id %s: %s" % (src_ticket_id, note.attachment))
@@ -329,6 +331,15 @@ def convert_wiki(source, dest):
                         converted += '- [%s](/uploads/migrated/%s)\n' % (f, f)
 
             trac2down.save_file(converted, name, info['version'], info['lastModified'], info['author'], target_directory)
+
+
+def get_cached_user_id(dest, gitlab_user_cache, username):
+    if username in gitlab_user_cache:
+        return gitlab_user_cache[username]
+    else:
+        uid = dest.get_user_id(username)
+        gitlab_user_cache[username] = uid
+        return uid
 
 
 if __name__ == "__main__":
