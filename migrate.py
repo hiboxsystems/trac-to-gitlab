@@ -59,7 +59,7 @@ uploads_path = config.get('target', 'uploads')
 method = config.get('target', 'method')
 
 if method == 'api':
-    from gitlab_api import Connection, Issues, Notes, Milestones
+    from gitlab_api import Connection, Issues, IssueAssignees, Notes, Milestones
 
     print("importing api")
     gitlab_url = config.get('target', 'url')
@@ -68,7 +68,7 @@ if method == 'api':
     overwrite = False
 elif method == 'direct':
     print("importing direct")
-    from gitlab_direct import Connection, Issues, Notes, Milestones
+    from gitlab_direct import Connection, Issues, IssueAssignees, Notes, Milestones
 
     db_name = config.get('target', 'db-name')
     db_password = config.get('target', 'db-password')
@@ -246,11 +246,6 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
                     milestone_map_id[release_milestone_name] = new_milestone.id
                 new_issue.milestone = milestone_map_id[release_milestone_name]
 
-        if src_ticket_data['owner'] != '':
-            try:
-                new_issue.assignee = get_cached_user_id(dest, gitlab_user_cache,users_map[src_ticket_data['owner']])
-            except KeyError:
-                new_issue.assignee = get_cached_user_id(dest, gitlab_user_cache, default_user)
         # Additional parameters for direct access
         if method == 'direct':
             new_issue.created_at = convert_xmlrpc_datetime(src_ticket[1])
@@ -271,7 +266,17 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             if milestone and milestone_map_id[milestone]:
                 new_issue.milestone = milestone_map_id[milestone]
         new_ticket = dest.create_issue(dest_project_id, new_issue)
-        # new_ticket_id  = new_ticket.id
+
+        if src_ticket_data['owner'] != '':
+            try:
+                mapped_user = users_map[src_ticket_data['owner']]
+            except KeyError:
+                mapped_user = default_user
+            q = IssueAssignees.insert(
+                issue=new_ticket.id,
+                user=get_cached_user_id(dest, gitlab_user_cache, mapped_user)
+            )
+            q.execute()
 
         changelog = source.ticket.changeLog(src_ticket_id)
         is_attachment = False

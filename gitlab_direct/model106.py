@@ -1128,6 +1128,7 @@ class IssueAssignees(BaseModel):
     user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
 
     class Meta:
+        primary_key = False
         db_table = 'issue_assignees'
         indexes = (
             (('user', 'issue'), True),

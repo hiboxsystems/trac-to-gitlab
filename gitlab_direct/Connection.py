@@ -75,8 +75,11 @@ class Connection(object):
             return project._data
         return None
 
+    def get_user(self, username):
+        return Users.get(Users.username == username)
+
     def get_user_id(self, username):
-        return Users.get(Users.username == username).id
+        return self.get_user(username).id
 
     def get_issues_iid(self, dest_project_id):
         return Issues.select().where(Issues.project == dest_project_id).aggregate(fn.Count(Issues.id)) + 1
@@ -129,6 +132,9 @@ class Connection(object):
             )
             label_link.save()
         return new_issue
+
+    def assign_issue(self, new_issue_assignment):
+        new_issue_assignment.save()
 
     def comment_issue(self, project_id, ticket, note, binary_attachment):
         note.project = project_id
