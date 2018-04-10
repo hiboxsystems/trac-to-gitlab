@@ -23,8 +23,8 @@ class Connection(object):
     def __init__(self, db_name, db_user, db_password, db_path, uploads_path, project_name):
         """
         """
-        db = PostgresqlDatabase(db_name, user=db_user, host=db_path)
-        database_proxy.initialize(db)
+        self.db = PostgresqlDatabase(db_name, user=db_user, host=db_path)
+        database_proxy.initialize(self.db)
         self.uploads_path = uploads_path
         self.project_name = project_name
 
@@ -75,8 +75,11 @@ class Connection(object):
             return project._data
         return None
 
+    def get_user(self, username):
+        return Users.get(Users.username == username)
+
     def get_user_id(self, username):
-        return Users.get(Users.username == username).id
+        return self.get_user(username).id
 
     def get_issues_iid(self, dest_project_id):
         return Issues.select().where(Issues.project == dest_project_id).aggregate(fn.Count(Issues.id)) + 1
@@ -129,6 +132,12 @@ class Connection(object):
             )
             label_link.save()
         return new_issue
+
+    def assign_issue(self, new_issue_assignment):
+        previous_insert_returning = self.db.insert_returning
+        self.db.insert_returning = False
+        new_issue_assignment.execute()
+        self.db.insert_returning = previous_insert_returning
 
     def comment_issue(self, project_id, ticket, note, binary_attachment):
         note.project = project_id
