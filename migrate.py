@@ -142,9 +142,14 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 
     gitlab_user_cache = {}
 
-    print("getting all tickets from trac")
-    for ticket in source.ticket.query("max=0&order=id"):
-        get_all_tickets.ticket.get(ticket)
+    if only_issues:
+        print("getting tickets from trac: %s" % only_issues)
+        for ticket in only_issues:
+            get_all_tickets.ticket.get(ticket)
+    else:
+        print("getting all tickets from trac")
+        for ticket in source.ticket.query("max=0&order=id"):
+            get_all_tickets.ticket.get(ticket)
 
     for src_ticket in get_all_tickets():
         src_ticket_id = src_ticket[0]
