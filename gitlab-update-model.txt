@@ -1,0 +1,1 @@
+sudo -u gitlab-psql ./pwiz.py -e postgresql -u gitlab-psql -H /var/opt/gitlab/postgresql gitlabhq_production > gitlab_direct/modelXYZ.py
