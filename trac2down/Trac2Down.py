@@ -12,6 +12,11 @@ import re
 import os
 from io import open
 
+# Config Start
+meta_header = True              # whether to include the wiki pages' meta data at the top of the markdown
+markdown_extension = 'markdown' # file extension to use for the generated markdown files
+# Config End
+
 
 def convert(text, base_path, multilines=True):
     text = re.sub('\r\n', '\n', text)
@@ -69,13 +74,14 @@ def convert(text, base_path, multilines=True):
 
 def save_file(text, name, version, date, author, directory):
     folders = name.rsplit("/", 1)
-    if not os.path.exists("%s%s" % (directory, folders[0])):
+    if len(folders) > 1 and not os.path.exists("%s%s" % (directory, folders[0])):
         os.makedirs("%s%s" % (directory, folders[0]))
-    fp = open('%s%s.md' % (directory, name), 'w')
-    # print >>fp, '<!-- Name: %s -->' % name
-    # print >>fp, '<!-- Version: %d -->' % version
-    # print >>fp, '<!-- Last-Modified: %s -->' % date
-    # print >>fp, '<!-- Author: %s -->' % author
+    fp = open('%s%s.%s' % (directory, name, markdown_extension), 'w')
+    if meta_header:
+        fp.write('<!-- Name: %s -->' % name)
+        fp.write('<!-- Version: %d -->' % version)
+        fp.write('<!-- Last-Modified: %s -->' % date)
+        fp.write('<!-- Author: %s -->' % author)
     fp.write(unicode(text))
     fp.close()
 
