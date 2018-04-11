@@ -1,2 +1,2 @@
-peewee==2.8.0
+peewee==3.2.2
 psycopg2==2.6.1

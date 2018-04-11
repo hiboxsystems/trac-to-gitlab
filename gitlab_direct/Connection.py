@@ -64,15 +64,15 @@ class Connection(object):
 
     def milestone_by_name(self, project_id, milestone_name):
         for milestone in Milestones.select().where((Milestones.title == milestone_name) & (Milestones.project == project_id)):
-            return milestone._data
+            return milestone.__data__
         return None
 
     def project_by_name(self, project_name):
         (namespace, name) = project_name.split('/')
         print(name)
         for project in Projects.select().join(Namespaces, on=(Projects.namespace == Namespaces.id )).where((Projects.path == name) & (Namespaces.path == namespace)):
-            print(project._data)
-            return project._data
+            print(project.__data__)
+            return project.__data__
         return None
 
     def get_user(self, username):
@@ -87,9 +87,9 @@ class Connection(object):
     def create_milestone(self, dest_project_id, new_milestone):
         try:
             existing = Milestones.get((Milestones.title == new_milestone.title) & (Milestones.project == dest_project_id))
-            for k in new_milestone._data:
+            for k in new_milestone.__data__:
                 if k not in ('id', 'iid'):
-                    existing._data[k] = new_milestone._data[k]
+                    existing.__data__[k] = new_milestone.__data__[k]
             new_milestone = existing
         except:
             new_milestone.iid = Milestones.select().where(Milestones.project == dest_project_id).aggregate(fn.Count(Milestones.id)) + 1

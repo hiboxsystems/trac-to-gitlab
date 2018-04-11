@@ -3,7 +3,7 @@ from peewee import *
 database_proxy = Proxy()
 
 class UnknownField(object):
-    pass
+    def __init__(self, *_, **__): pass
 
 class BaseModel(Model):
     class Meta:
@@ -14,12 +14,12 @@ class AbuseReports(BaseModel):
     created_at = DateTimeField(null=True)
     message = TextField(null=True)
     message_html = TextField(null=True)
-    reporter = IntegerField(db_column='reporter_id', null=True)
+    reporter = IntegerField(column_name='reporter_id', null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', null=True)
+    user = IntegerField(column_name='user_id', null=True)
 
     class Meta:
-        db_table = 'abuse_reports'
+        table_name = 'abuse_reports'
 
 class Appearances(BaseModel):
     cached_markdown_version = IntegerField(null=True)
@@ -34,7 +34,7 @@ class Appearances(BaseModel):
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'appearances'
+        table_name = 'appearances'
 
 class ApplicationSettings(BaseModel):
     admin_notification_email = CharField(null=True)
@@ -106,7 +106,7 @@ class ApplicationSettings(BaseModel):
     pages_domain_verification_enabled = BooleanField()
     password_authentication_enabled_for_git = BooleanField()
     password_authentication_enabled_for_web = BooleanField(null=True)
-    performance_bar_allowed_group = IntegerField(db_column='performance_bar_allowed_group_id', null=True)
+    performance_bar_allowed_group = IntegerField(column_name='performance_bar_allowed_group_id', null=True)
     plantuml_enabled = BooleanField(null=True)
     plantuml_url = CharField(null=True)
     polling_interval_multiplier = DecimalField()
@@ -156,33 +156,33 @@ class ApplicationSettings(BaseModel):
     version_check_enabled = BooleanField(null=True)
 
     class Meta:
-        db_table = 'application_settings'
+        table_name = 'application_settings'
 
 class AuditEvents(BaseModel):
-    author = IntegerField(db_column='author_id')
+    author = IntegerField(column_name='author_id')
     created_at = DateTimeField(null=True)
     details = TextField(null=True)
-    entity = IntegerField(db_column='entity_id')
+    entity = IntegerField(column_name='entity_id')
     entity_type = CharField()
     type = CharField()
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'audit_events'
+        table_name = 'audit_events'
         indexes = (
             (('entity', 'entity_type'), False),
         )
 
 class AwardEmoji(BaseModel):
-    awardable = IntegerField(db_column='awardable_id', null=True)
+    awardable = IntegerField(column_name='awardable_id', null=True)
     awardable_type = CharField(null=True)
     created_at = DateTimeField(null=True)
     name = CharField(null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', null=True)
+    user = IntegerField(column_name='user_id', null=True)
 
     class Meta:
-        db_table = 'award_emoji'
+        table_name = 'award_emoji'
         indexes = (
             (('awardable', 'awardable_type'), False),
             (('name', 'user'), False),
@@ -196,8 +196,8 @@ class Namespaces(BaseModel):
     description_html = TextField(null=True)
     lfs_enabled = BooleanField(null=True)
     name = CharField(index=True)
-    owner = IntegerField(db_column='owner_id', index=True, null=True)
-    parent = IntegerField(db_column='parent_id', null=True)
+    owner = IntegerField(column_name='owner_id', index=True, null=True)
+    parent = IntegerField(column_name='parent_id', null=True)
     path = CharField(index=True)
     request_access_enabled = BooleanField()
     require_two_factor_authentication = BooleanField(index=True)
@@ -208,7 +208,7 @@ class Namespaces(BaseModel):
     visibility_level = IntegerField()
 
     class Meta:
-        db_table = 'namespaces'
+        table_name = 'namespaces'
         indexes = (
             (('id', 'parent'), True),
             (('parent', 'name'), True),
@@ -223,10 +223,10 @@ class Projects(BaseModel):
     build_timeout = IntegerField()
     cached_markdown_version = IntegerField(null=True)
     ci_config_path = CharField(null=True)
-    ci = IntegerField(db_column='ci_id', index=True, null=True)
+    ci = IntegerField(column_name='ci_id', index=True, null=True)
     container_registry_enabled = BooleanField(null=True)
     created_at = DateTimeField(index=True, null=True)
-    creator = IntegerField(db_column='creator_id', index=True, null=True)
+    creator = IntegerField(column_name='creator_id', index=True, null=True)
     delete_error = TextField(null=True)
     description = TextField(index=True, null=True)
     description_html = TextField(null=True)
@@ -247,7 +247,7 @@ class Projects(BaseModel):
     merge_requests_ff_only_enabled = BooleanField()
     merge_requests_rebase_enabled = BooleanField()
     name = CharField(index=True, null=True)
-    namespace = IntegerField(db_column='namespace_id', index=True)
+    namespace = IntegerField(column_name='namespace_id', index=True)
     only_allow_merge_if_all_discussions_are_resolved = BooleanField(null=True)
     only_allow_merge_if_pipeline_succeeds = BooleanField()
     path = CharField(index=True, null=True)
@@ -266,28 +266,28 @@ class Projects(BaseModel):
     visibility_level = IntegerField(index=True)
 
     class Meta:
-        db_table = 'projects'
+        table_name = 'projects'
 
 class Badges(BaseModel):
     created_at = DateTimeField()
-    group = ForeignKeyField(db_column='group_id', null=True, rel_model=Namespaces, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces, null=True)
     image_url = CharField()
     link_url = CharField()
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     type = CharField()
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'badges'
+        table_name = 'badges'
 
 class Boards(BaseModel):
     created_at = DateTimeField()
-    group = ForeignKeyField(db_column='group_id', null=True, rel_model=Namespaces, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'boards'
+        table_name = 'boards'
 
 class BroadcastMessages(BaseModel):
     cached_markdown_version = IntegerField(null=True)
@@ -301,24 +301,24 @@ class BroadcastMessages(BaseModel):
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'broadcast_messages'
+        table_name = 'broadcast_messages'
         indexes = (
             (('id', 'starts_at', 'ends_at'), False),
         )
 
 class ChatNames(BaseModel):
-    chat = CharField(db_column='chat_id')
+    chat = CharField(column_name='chat_id')
     chat_name = CharField(null=True)
     created_at = DateTimeField()
     last_used_at = DateTimeField(null=True)
-    service = IntegerField(db_column='service_id')
+    service = IntegerField(column_name='service_id')
     team_domain = CharField(null=True)
-    team = CharField(db_column='team_id')
+    team = CharField(column_name='team_id')
     updated_at = DateTimeField()
-    user = IntegerField(db_column='user_id')
+    user = IntegerField(column_name='user_id')
 
     class Meta:
-        db_table = 'chat_names'
+        table_name = 'chat_names'
         indexes = (
             (('service', 'team', 'chat'), True),
             (('user', 'service'), True),
@@ -327,19 +327,19 @@ class ChatNames(BaseModel):
 class ChatTeams(BaseModel):
     created_at = DateTimeField()
     name = CharField(null=True)
-    namespace = ForeignKeyField(db_column='namespace_id', rel_model=Namespaces, to_field='id', unique=True)
-    team = CharField(db_column='team_id', null=True)
+    namespace = ForeignKeyField(column_name='namespace_id', field='id', model=Namespaces, unique=True)
+    team = CharField(column_name='team_id', null=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'chat_teams'
+        table_name = 'chat_teams'
 
 class CiBuildTraceSectionNames(BaseModel):
     name = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
 
     class Meta:
-        db_table = 'ci_build_trace_section_names'
+        table_name = 'ci_build_trace_section_names'
         indexes = (
             (('project', 'name'), True),
         )
@@ -350,13 +350,13 @@ class Users(BaseModel):
     bio = CharField(null=True)
     can_create_group = BooleanField()
     can_create_team = BooleanField()
-    color_scheme = IntegerField(db_column='color_scheme_id')
+    color_scheme = IntegerField(column_name='color_scheme_id')
     confirmation_sent_at = DateTimeField(null=True)
     confirmation_token = CharField(null=True, unique=True)
     confirmed_at = DateTimeField(null=True)
     consumed_timestep = IntegerField(null=True)
     created_at = DateTimeField(index=True, null=True)
-    created_by = IntegerField(db_column='created_by_id', null=True)
+    created_by = IntegerField(column_name='created_by_id', null=True)
     current_sign_in_at = DateTimeField(null=True)
     current_sign_in_ip = CharField(null=True)
     dashboard = IntegerField(null=True)
@@ -401,7 +401,7 @@ class Users(BaseModel):
     sign_in_count = IntegerField(null=True)
     skype = CharField()
     state = CharField(index=True, null=True)
-    theme = IntegerField(db_column='theme_id', null=True)
+    theme = IntegerField(column_name='theme_id', null=True)
     twitter = CharField()
     two_factor_grace_period = IntegerField()
     unconfirmed_email = CharField(null=True)
@@ -411,7 +411,7 @@ class Users(BaseModel):
     website_url = CharField()
 
     class Meta:
-        db_table = 'users'
+        table_name = 'users'
 
 class CiPipelineSchedules(BaseModel):
     active = BooleanField(null=True)
@@ -420,19 +420,19 @@ class CiPipelineSchedules(BaseModel):
     cron_timezone = CharField(null=True)
     description = CharField(null=True)
     next_run_at = DateTimeField(null=True)
-    owner = ForeignKeyField(db_column='owner_id', null=True, rel_model=Users, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    owner = ForeignKeyField(column_name='owner_id', field='id', model=Users, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     ref = CharField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'ci_pipeline_schedules'
+        table_name = 'ci_pipeline_schedules'
         indexes = (
             (('next_run_at', 'active'), False),
         )
 
 class CiPipelines(BaseModel):
-    auto_canceled_by = ForeignKeyField(db_column='auto_canceled_by_id', null=True, rel_model='self', to_field='id')
+    auto_canceled_by = ForeignKeyField(column_name='auto_canceled_by_id', field='id', model='self', null=True)
     before_sha = CharField(null=True)
     committed_at = DateTimeField(null=True)
     config_source = IntegerField(null=True)
@@ -441,8 +441,8 @@ class CiPipelines(BaseModel):
     failure_reason = IntegerField(null=True)
     finished_at = DateTimeField(null=True)
     lock_version = IntegerField(null=True)
-    pipeline_schedule = ForeignKeyField(db_column='pipeline_schedule_id', null=True, rel_model=CiPipelineSchedules, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    pipeline_schedule = ForeignKeyField(column_name='pipeline_schedule_id', field='id', model=CiPipelineSchedules, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     protected = BooleanField(null=True)
     ref = CharField(null=True)
     sha = CharField(null=True)
@@ -451,11 +451,11 @@ class CiPipelines(BaseModel):
     status = CharField(index=True, null=True)
     tag = BooleanField(null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', index=True, null=True)
+    user = IntegerField(column_name='user_id', index=True, null=True)
     yaml_errors = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_pipelines'
+        table_name = 'ci_pipelines'
         indexes = (
             (('id', 'ref', 'project', 'status'), False),
             (('sha', 'project'), False),
@@ -465,13 +465,13 @@ class CiStages(BaseModel):
     created_at = DateTimeField(null=True)
     lock_version = IntegerField(null=True)
     name = CharField(null=True)
-    pipeline = ForeignKeyField(db_column='pipeline_id', null=True, rel_model=CiPipelines, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    pipeline = ForeignKeyField(column_name='pipeline_id', field='id', model=CiPipelines, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     status = IntegerField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'ci_stages'
+        table_name = 'ci_stages'
         indexes = (
             (('pipeline', 'name'), True),
         )
@@ -482,29 +482,29 @@ class CiBuilds(BaseModel):
     artifacts_file = TextField(null=True)
     artifacts_metadata = TextField(null=True)
     artifacts_size = BigIntegerField(null=True)
-    auto_canceled_by = ForeignKeyField(db_column='auto_canceled_by_id', null=True, rel_model=CiPipelines, to_field='id')
+    auto_canceled_by = ForeignKeyField(column_name='auto_canceled_by_id', field='id', model=CiPipelines, null=True)
     commands = TextField(null=True)
-    commit = IntegerField(db_column='commit_id', null=True)
+    commit = IntegerField(column_name='commit_id', null=True)
     coverage = FloatField(null=True)
     coverage_regex = CharField(null=True)
     created_at = DateTimeField(null=True)
     description = CharField(null=True)
     environment = CharField(null=True)
     erased_at = DateTimeField(null=True)
-    erased_by = IntegerField(db_column='erased_by_id', null=True)
+    erased_by = IntegerField(column_name='erased_by_id', null=True)
     failure_reason = IntegerField(null=True)
     finished_at = DateTimeField(null=True)
     lock_version = IntegerField(null=True)
     name = CharField(null=True)
     options = TextField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     protected = BooleanField(index=True, null=True)
     queued_at = DateTimeField(null=True)
     ref = CharField(null=True)
     retried = BooleanField(null=True)
-    runner = IntegerField(db_column='runner_id', index=True, null=True)
+    runner = IntegerField(column_name='runner_id', index=True, null=True)
     stage = CharField(null=True)
-    stage_id = ForeignKeyField(db_column='stage_id', null=True, rel_model=CiStages, to_field='id')
+    stage_id = ForeignKeyField(column_name='stage_id', field='id', model=CiStages, null=True)
     stage_idx = IntegerField(null=True)
     started_at = DateTimeField(null=True)
     status = CharField(index=True, null=True)
@@ -512,15 +512,15 @@ class CiBuilds(BaseModel):
     target_url = CharField(null=True)
     token = CharField(null=True, unique=True)
     trace = TextField(null=True)
-    trigger_request = IntegerField(db_column='trigger_request_id', null=True)
+    trigger_request = IntegerField(column_name='trigger_request_id', null=True)
     type = CharField(null=True)
     updated_at = DateTimeField(index=True, null=True)
-    user = IntegerField(db_column='user_id', index=True, null=True)
+    user = IntegerField(column_name='user_id', index=True, null=True)
     when = CharField(null=True)
     yaml_variables = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_builds'
+        table_name = 'ci_builds'
         indexes = (
             (('commit', 'created_at', 'stage_idx'), False),
             (('commit', 'name', 'type', 'ref'), False),
@@ -531,16 +531,16 @@ class CiBuilds(BaseModel):
         )
 
 class CiBuildTraceSections(BaseModel):
-    build = ForeignKeyField(db_column='build_id', rel_model=CiBuilds, to_field='id')
+    build = ForeignKeyField(column_name='build_id', field='id', model=CiBuilds)
     byte_end = BigIntegerField()
     byte_start = BigIntegerField()
     date_end = DateTimeField()
     date_start = DateTimeField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
-    section_name = ForeignKeyField(db_column='section_name_id', rel_model=CiBuildTraceSectionNames, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
+    section_name = ForeignKeyField(column_name='section_name_id', field='id', model=CiBuildTraceSectionNames)
 
     class Meta:
-        db_table = 'ci_build_trace_sections'
+        table_name = 'ci_build_trace_sections'
         indexes = (
             (('build', 'section_name'), True),
         )
@@ -550,14 +550,14 @@ class CiGroupVariables(BaseModel):
     encrypted_value = TextField(null=True)
     encrypted_value_iv = CharField(null=True)
     encrypted_value_salt = CharField(null=True)
-    group = ForeignKeyField(db_column='group_id', rel_model=Namespaces, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces)
     key = CharField()
     protected = BooleanField()
     updated_at = DateTimeField()
     value = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_group_variables'
+        table_name = 'ci_group_variables'
         indexes = (
             (('key', 'group'), True),
         )
@@ -568,13 +568,13 @@ class CiJobArtifacts(BaseModel):
     file = CharField(null=True)
     file_sha256 = BlobField(null=True)
     file_type = IntegerField()
-    job = ForeignKeyField(db_column='job_id', rel_model=CiBuilds, to_field='id')
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    job = ForeignKeyField(column_name='job_id', field='id', model=CiBuilds)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     size = BigIntegerField(null=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'ci_job_artifacts'
+        table_name = 'ci_job_artifacts'
         indexes = (
             (('job', 'expire_at'), False),
             (('job', 'file_type'), True),
@@ -586,12 +586,12 @@ class CiPipelineScheduleVariables(BaseModel):
     encrypted_value_iv = CharField(null=True)
     encrypted_value_salt = CharField(null=True)
     key = CharField()
-    pipeline_schedule = ForeignKeyField(db_column='pipeline_schedule_id', rel_model=CiPipelineSchedules, to_field='id')
+    pipeline_schedule = ForeignKeyField(column_name='pipeline_schedule_id', field='id', model=CiPipelineSchedules)
     updated_at = DateTimeField(null=True)
     value = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_pipeline_schedule_variables'
+        table_name = 'ci_pipeline_schedule_variables'
         indexes = (
             (('key', 'pipeline_schedule'), True),
         )
@@ -601,23 +601,23 @@ class CiPipelineVariables(BaseModel):
     encrypted_value_iv = CharField(null=True)
     encrypted_value_salt = CharField(null=True)
     key = CharField()
-    pipeline = ForeignKeyField(db_column='pipeline_id', rel_model=CiPipelines, to_field='id')
+    pipeline = ForeignKeyField(column_name='pipeline_id', field='id', model=CiPipelines)
     value = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_pipeline_variables'
+        table_name = 'ci_pipeline_variables'
         indexes = (
             (('key', 'pipeline'), True),
         )
 
 class CiRunnerProjects(BaseModel):
     created_at = DateTimeField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
-    runner = IntegerField(db_column='runner_id', index=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
+    runner = IntegerField(column_name='runner_id', index=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'ci_runner_projects'
+        table_name = 'ci_runner_projects'
 
 class CiRunners(BaseModel):
     access_level = IntegerField()
@@ -638,29 +638,29 @@ class CiRunners(BaseModel):
     version = CharField(null=True)
 
     class Meta:
-        db_table = 'ci_runners'
+        table_name = 'ci_runners'
 
 class CiTriggers(BaseModel):
     created_at = DateTimeField(null=True)
     description = CharField(null=True)
-    owner = ForeignKeyField(db_column='owner_id', null=True, rel_model=Users, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    owner = ForeignKeyField(column_name='owner_id', field='id', model=Users, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     ref = CharField(null=True)
     token = CharField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'ci_triggers'
+        table_name = 'ci_triggers'
 
 class CiTriggerRequests(BaseModel):
-    commit = IntegerField(db_column='commit_id', index=True, null=True)
+    commit = IntegerField(column_name='commit_id', index=True, null=True)
     created_at = DateTimeField(null=True)
-    trigger = ForeignKeyField(db_column='trigger_id', rel_model=CiTriggers, to_field='id')
+    trigger = ForeignKeyField(column_name='trigger_id', field='id', model=CiTriggers)
     updated_at = DateTimeField(null=True)
     variables = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_trigger_requests'
+        table_name = 'ci_trigger_requests'
 
 class CiVariables(BaseModel):
     encrypted_value = TextField(null=True)
@@ -668,12 +668,12 @@ class CiVariables(BaseModel):
     encrypted_value_salt = CharField(null=True)
     environment_scope = CharField()
     key = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     protected = BooleanField()
     value = TextField(null=True)
 
     class Meta:
-        db_table = 'ci_variables'
+        table_name = 'ci_variables'
         indexes = (
             (('key', 'project', 'environment_scope'), True),
         )
@@ -686,15 +686,15 @@ class Clusters(BaseModel):
     platform_type = IntegerField(null=True)
     provider_type = IntegerField(null=True)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'clusters'
+        table_name = 'clusters'
 
 class ClusterPlatformsKubernetes(BaseModel):
     api_url = TextField(null=True)
     ca_cert = TextField(null=True)
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id', unique=True)
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters, unique=True)
     created_at = DateTimeField()
     encrypted_password = TextField(null=True)
     encrypted_password_iv = CharField(null=True)
@@ -705,37 +705,37 @@ class ClusterPlatformsKubernetes(BaseModel):
     username = CharField(null=True)
 
     class Meta:
-        db_table = 'cluster_platforms_kubernetes'
+        table_name = 'cluster_platforms_kubernetes'
 
 class ClusterProjects(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id')
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters)
     created_at = DateTimeField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'cluster_projects'
+        table_name = 'cluster_projects'
 
 class ClusterProvidersGcp(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id', unique=True)
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters, unique=True)
     created_at = DateTimeField()
     encrypted_access_token = TextField(null=True)
     encrypted_access_token_iv = CharField(null=True)
     endpoint = CharField(null=True)
-    gcp_project = CharField(db_column='gcp_project_id')
+    gcp_project = CharField(column_name='gcp_project_id')
     machine_type = CharField(null=True)
     num_nodes = IntegerField()
-    operation = CharField(db_column='operation_id', null=True)
+    operation = CharField(column_name='operation_id', null=True)
     status = IntegerField(null=True)
     status_reason = TextField(null=True)
     updated_at = DateTimeField()
     zone = CharField()
 
     class Meta:
-        db_table = 'cluster_providers_gcp'
+        table_name = 'cluster_providers_gcp'
 
 class ClustersApplicationsHelm(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id')
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters)
     created_at = DateTimeField()
     status = IntegerField()
     status_reason = TextField(null=True)
@@ -743,10 +743,10 @@ class ClustersApplicationsHelm(BaseModel):
     version = CharField()
 
     class Meta:
-        db_table = 'clusters_applications_helm'
+        table_name = 'clusters_applications_helm'
 
 class ClustersApplicationsIngress(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id')
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters)
     cluster_ip = CharField(null=True)
     created_at = DateTimeField()
     external_ip = CharField(null=True)
@@ -757,10 +757,10 @@ class ClustersApplicationsIngress(BaseModel):
     version = CharField()
 
     class Meta:
-        db_table = 'clusters_applications_ingress'
+        table_name = 'clusters_applications_ingress'
 
 class ClustersApplicationsPrometheus(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id')
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters)
     created_at = DateTimeField()
     status = IntegerField()
     status_reason = TextField(null=True)
@@ -768,29 +768,29 @@ class ClustersApplicationsPrometheus(BaseModel):
     version = CharField()
 
     class Meta:
-        db_table = 'clusters_applications_prometheus'
+        table_name = 'clusters_applications_prometheus'
 
 class ClustersApplicationsRunners(BaseModel):
-    cluster = ForeignKeyField(db_column='cluster_id', rel_model=Clusters, to_field='id', unique=True)
+    cluster = ForeignKeyField(column_name='cluster_id', field='id', model=Clusters, unique=True)
     created_at = DateTimeField()
     privileged = BooleanField()
-    runner = ForeignKeyField(db_column='runner_id', null=True, rel_model=CiRunners, to_field='id')
+    runner = ForeignKeyField(column_name='runner_id', field='id', model=CiRunners, null=True)
     status = IntegerField()
     status_reason = TextField(null=True)
     updated_at = DateTimeField()
     version = CharField()
 
     class Meta:
-        db_table = 'clusters_applications_runners'
+        table_name = 'clusters_applications_runners'
 
 class ContainerRepositories(BaseModel):
     created_at = DateTimeField()
     name = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'container_repositories'
+        table_name = 'container_repositories'
         indexes = (
             (('project', 'name'), True),
         )
@@ -830,34 +830,34 @@ class ConversationalDevelopmentIndexMetrics(BaseModel):
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'conversational_development_index_metrics'
+        table_name = 'conversational_development_index_metrics'
 
 class DeployKeysProjects(BaseModel):
     can_push = BooleanField()
     created_at = DateTimeField(null=True)
-    deploy_key = IntegerField(db_column='deploy_key_id')
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    deploy_key = IntegerField(column_name='deploy_key_id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'deploy_keys_projects'
+        table_name = 'deploy_keys_projects'
 
 class Deployments(BaseModel):
     created_at = DateTimeField(index=True, null=True)
-    deployable = IntegerField(db_column='deployable_id', null=True)
+    deployable = IntegerField(column_name='deployable_id', null=True)
     deployable_type = CharField(null=True)
-    environment = IntegerField(db_column='environment_id')
+    environment = IntegerField(column_name='environment_id')
     iid = IntegerField()
     on_stop = CharField(null=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     ref = CharField()
     sha = CharField()
     tag = BooleanField()
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', null=True)
+    user = IntegerField(column_name='user_id', null=True)
 
     class Meta:
-        db_table = 'deployments'
+        table_name = 'deployments'
         indexes = (
             (('environment', 'project', 'iid'), False),
             (('id', 'environment'), False),
@@ -871,23 +871,23 @@ class Emails(BaseModel):
     created_at = DateTimeField(null=True)
     email = CharField(unique=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', index=True)
+    user = IntegerField(column_name='user_id', index=True)
 
     class Meta:
-        db_table = 'emails'
+        table_name = 'emails'
 
 class Environments(BaseModel):
     created_at = DateTimeField(null=True)
     environment_type = CharField(null=True)
     external_url = CharField(null=True)
     name = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     slug = CharField()
     state = CharField()
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'environments'
+        table_name = 'environments'
         indexes = (
             (('project', 'name'), True),
             (('project', 'slug'), True),
@@ -895,15 +895,15 @@ class Environments(BaseModel):
 
 class Events(BaseModel):
     action = IntegerField(index=True)
-    author = ForeignKeyField(db_column='author_id', rel_model=Users, to_field='id')
+    author = ForeignKeyField(column_name='author_id', field='id', model=Users)
     created_at = DateTimeField()
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
-    target = IntegerField(db_column='target_id', null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
+    target = IntegerField(column_name='target_id', null=True)
     target_type = CharField(null=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'events'
+        table_name = 'events'
         indexes = (
             (('project', 'author'), False),
             (('project', 'id'), False),
@@ -918,7 +918,7 @@ class FeatureGates(BaseModel):
     value = CharField(null=True)
 
     class Meta:
-        db_table = 'feature_gates'
+        table_name = 'feature_gates'
         indexes = (
             (('feature_key', 'key', 'value'), True),
         )
@@ -929,31 +929,31 @@ class Features(BaseModel):
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'features'
+        table_name = 'features'
 
 class ForkNetworks(BaseModel):
     deleted_root_project_name = CharField(null=True)
-    root_project = ForeignKeyField(db_column='root_project_id', null=True, rel_model=Projects, to_field='id', unique=True)
+    root_project = ForeignKeyField(column_name='root_project_id', field='id', model=Projects, null=True, unique=True)
 
     class Meta:
-        db_table = 'fork_networks'
+        table_name = 'fork_networks'
 
 class ForkNetworkMembers(BaseModel):
-    fork_network = ForeignKeyField(db_column='fork_network_id', rel_model=ForkNetworks, to_field='id')
-    forked_from_project = ForeignKeyField(db_column='forked_from_project_id', null=True, rel_model=Projects, to_field='id')
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, related_name='projects_project_set', to_field='id', unique=True)
+    fork_network = ForeignKeyField(column_name='fork_network_id', field='id', model=ForkNetworks)
+    forked_from_project = ForeignKeyField(column_name='forked_from_project_id', field='id', model=Projects, null=True)
+    project = ForeignKeyField(backref='projects_project_set', column_name='project_id', field='id', model=Projects, unique=True)
 
     class Meta:
-        db_table = 'fork_network_members'
+        table_name = 'fork_network_members'
 
 class ForkedProjectLinks(BaseModel):
     created_at = DateTimeField(null=True)
-    forked_from_project = IntegerField(db_column='forked_from_project_id')
-    forked_to_project = ForeignKeyField(db_column='forked_to_project_id', rel_model=Projects, to_field='id', unique=True)
+    forked_from_project = IntegerField(column_name='forked_from_project_id')
+    forked_to_project = ForeignKeyField(column_name='forked_to_project_id', field='id', model=Projects, unique=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'forked_project_links'
+        table_name = 'forked_project_links'
 
 class Services(BaseModel):
     active = BooleanField()
@@ -968,7 +968,7 @@ class Services(BaseModel):
     merge_requests_events = BooleanField(null=True)
     note_events = BooleanField()
     pipeline_events = BooleanField()
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     properties = TextField(null=True)
     push_events = BooleanField(null=True)
     tag_push_events = BooleanField(null=True)
@@ -979,7 +979,7 @@ class Services(BaseModel):
     wiki_page_events = BooleanField(null=True)
 
     class Meta:
-        db_table = 'services'
+        table_name = 'services'
 
 class GcpClusters(BaseModel):
     ca_cert = TextField(null=True)
@@ -996,19 +996,19 @@ class GcpClusters(BaseModel):
     gcp_cluster_size = IntegerField()
     gcp_cluster_zone = CharField()
     gcp_machine_type = CharField(null=True)
-    gcp_operation = CharField(db_column='gcp_operation_id', null=True)
-    gcp_project = CharField(db_column='gcp_project_id')
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id', unique=True)
+    gcp_operation = CharField(column_name='gcp_operation_id', null=True)
+    gcp_project = CharField(column_name='gcp_project_id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, unique=True)
     project_namespace = CharField(null=True)
-    service = ForeignKeyField(db_column='service_id', null=True, rel_model=Services, to_field='id')
+    service = ForeignKeyField(column_name='service_id', field='id', model=Services, null=True)
     status = IntegerField(null=True)
     status_reason = TextField(null=True)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
     username = CharField(null=True)
 
     class Meta:
-        db_table = 'gcp_clusters'
+        table_name = 'gcp_clusters'
 
 class GpgKeys(BaseModel):
     created_at = DateTimeField()
@@ -1016,43 +1016,43 @@ class GpgKeys(BaseModel):
     key = TextField(null=True)
     primary_keyid = BlobField(null=True, unique=True)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'gpg_keys'
+        table_name = 'gpg_keys'
 
 class GpgKeySubkeys(BaseModel):
     fingerprint = BlobField(null=True, unique=True)
-    gpg_key = ForeignKeyField(db_column='gpg_key_id', rel_model=GpgKeys, to_field='id')
+    gpg_key = ForeignKeyField(column_name='gpg_key_id', field='id', model=GpgKeys)
     keyid = BlobField(null=True, unique=True)
 
     class Meta:
-        db_table = 'gpg_key_subkeys'
+        table_name = 'gpg_key_subkeys'
 
 class GpgSignatures(BaseModel):
     commit_sha = BlobField(null=True, unique=True)
     created_at = DateTimeField()
-    gpg_key = ForeignKeyField(db_column='gpg_key_id', null=True, rel_model=GpgKeys, to_field='id')
+    gpg_key = ForeignKeyField(column_name='gpg_key_id', field='id', model=GpgKeys, null=True)
     gpg_key_primary_keyid = BlobField(index=True, null=True)
-    gpg_key_subkey = ForeignKeyField(db_column='gpg_key_subkey_id', null=True, rel_model=GpgKeySubkeys, to_field='id')
+    gpg_key_subkey = ForeignKeyField(column_name='gpg_key_subkey_id', field='id', model=GpgKeySubkeys, null=True)
     gpg_key_user_email = TextField(null=True)
     gpg_key_user_name = TextField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     updated_at = DateTimeField()
     verification_status = IntegerField()
 
     class Meta:
-        db_table = 'gpg_signatures'
+        table_name = 'gpg_signatures'
 
 class GroupCustomAttributes(BaseModel):
     created_at = DateTimeField()
-    group = ForeignKeyField(db_column='group_id', rel_model=Namespaces, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces)
     key = CharField()
     updated_at = DateTimeField()
     value = CharField()
 
     class Meta:
-        db_table = 'group_custom_attributes'
+        table_name = 'group_custom_attributes'
         indexes = (
             (('group', 'key'), True),
             (('key', 'value'), False),
@@ -1063,10 +1063,10 @@ class Identities(BaseModel):
     extern_uid = CharField(null=True)
     provider = CharField(null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', index=True, null=True)
+    user = IntegerField(column_name='user_id', index=True, null=True)
 
     class Meta:
-        db_table = 'identities'
+        table_name = 'identities'
 
 class Milestones(BaseModel):
     cached_markdown_version = IntegerField(null=True)
@@ -1074,9 +1074,9 @@ class Milestones(BaseModel):
     description = TextField(index=True, null=True)
     description_html = TextField(null=True)
     due_date = DateField(index=True, null=True)
-    group = ForeignKeyField(db_column='group_id', null=True, rel_model=Namespaces, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces, null=True)
     iid = IntegerField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     start_date = DateField(null=True)
     state = CharField(null=True)
     title = CharField(index=True)
@@ -1084,13 +1084,13 @@ class Milestones(BaseModel):
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'milestones'
+        table_name = 'milestones'
         indexes = (
             (('project', 'iid'), True),
         )
 
 class Issues(BaseModel):
-    author = ForeignKeyField(db_column='author_id', null=True, rel_model=Users, to_field='id')
+    author = ForeignKeyField(column_name='author_id', field='id', model=Users, null=True)
     cached_markdown_version = IntegerField(null=True)
     closed_at = DateTimeField(null=True)
     confidential = BooleanField(index=True)
@@ -1101,21 +1101,21 @@ class Issues(BaseModel):
     due_date = DateField(null=True)
     iid = IntegerField(null=True)
     last_edited_at = DateTimeField(null=True)
-    last_edited_by = IntegerField(db_column='last_edited_by_id', null=True)
+    last_edited_by = IntegerField(column_name='last_edited_by_id', null=True)
     lock_version = IntegerField(null=True)
-    milestone = ForeignKeyField(db_column='milestone_id', null=True, rel_model=Milestones, to_field='id')
-    moved_to = ForeignKeyField(db_column='moved_to_id', null=True, rel_model='self', to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    milestone = ForeignKeyField(column_name='milestone_id', field='id', model=Milestones, null=True)
+    moved_to = ForeignKeyField(column_name='moved_to_id', field='id', model='self', null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     relative_position = IntegerField(index=True, null=True)
     state = CharField(index=True, null=True)
     time_estimate = IntegerField(null=True)
     title = CharField(index=True, null=True)
     title_html = TextField(null=True)
     updated_at = DateTimeField(index=True, null=True)
-    updated_by = ForeignKeyField(db_column='updated_by_id', null=True, rel_model=Users, related_name='users_updated_by_set', to_field='id')
+    updated_by = ForeignKeyField(backref='users_updated_by_set', column_name='updated_by_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'issues'
+        table_name = 'issues'
         indexes = (
             (('project', 'id', 'created_at', 'state'), False),
             (('project', 'id', 'state', 'updated_at'), False),
@@ -1124,26 +1124,26 @@ class Issues(BaseModel):
         )
 
 class IssueAssignees(BaseModel):
-    issue = ForeignKeyField(db_column='issue_id', rel_model=Issues, to_field='id')
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    issue = ForeignKeyField(column_name='issue_id', field='id', model=Issues)
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
-        primary_key = False
-        db_table = 'issue_assignees'
+        table_name = 'issue_assignees'
         indexes = (
             (('user', 'issue'), True),
         )
+        primary_key = False
 
 class IssueMetrics(BaseModel):
     created_at = DateTimeField()
     first_added_to_board_at = DateTimeField(null=True)
     first_associated_with_milestone_at = DateTimeField(null=True)
     first_mentioned_in_commit_at = DateTimeField(null=True)
-    issue = ForeignKeyField(db_column='issue_id', rel_model=Issues, to_field='id')
+    issue = ForeignKeyField(column_name='issue_id', field='id', model=Issues)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'issue_metrics'
+        table_name = 'issue_metrics'
 
 class Keys(BaseModel):
     created_at = DateTimeField(null=True)
@@ -1154,20 +1154,20 @@ class Keys(BaseModel):
     title = CharField(null=True)
     type = CharField(null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', index=True, null=True)
+    user = IntegerField(column_name='user_id', index=True, null=True)
 
     class Meta:
-        db_table = 'keys'
+        table_name = 'keys'
 
 class LabelLinks(BaseModel):
     created_at = DateTimeField(null=True)
-    label = IntegerField(db_column='label_id', index=True, null=True)
-    target = IntegerField(db_column='target_id', null=True)
+    label = IntegerField(column_name='label_id', index=True, null=True)
+    target = IntegerField(column_name='target_id', null=True)
     target_type = CharField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'label_links'
+        table_name = 'label_links'
         indexes = (
             (('target', 'target_type'), False),
         )
@@ -1178,15 +1178,15 @@ class Labels(BaseModel):
     created_at = DateTimeField(null=True)
     description = CharField(null=True)
     description_html = TextField(null=True)
-    group = ForeignKeyField(db_column='group_id', null=True, rel_model=Namespaces, to_field='id')
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     template = BooleanField(index=True, null=True)
     title = CharField(index=True, null=True)
     type = CharField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'labels'
+        table_name = 'labels'
         indexes = (
             (('title', 'group', 'project'), True),
             (('type', 'project'), False),
@@ -1194,13 +1194,13 @@ class Labels(BaseModel):
 
 class LabelPriorities(BaseModel):
     created_at = DateTimeField()
-    label = ForeignKeyField(db_column='label_id', rel_model=Labels, to_field='id')
+    label = ForeignKeyField(column_name='label_id', field='id', model=Labels)
     priority = IntegerField(index=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'label_priorities'
+        table_name = 'label_priorities'
         indexes = (
             (('project', 'label'), True),
         )
@@ -1208,11 +1208,11 @@ class LabelPriorities(BaseModel):
 class LfsFileLocks(BaseModel):
     created_at = DateTimeField()
     path = CharField(null=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
-        db_table = 'lfs_file_locks'
+        table_name = 'lfs_file_locks'
         indexes = (
             (('project', 'path'), True),
         )
@@ -1225,27 +1225,27 @@ class LfsObjects(BaseModel):
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'lfs_objects'
+        table_name = 'lfs_objects'
 
 class LfsObjectsProjects(BaseModel):
     created_at = DateTimeField(null=True)
-    lfs_object = IntegerField(db_column='lfs_object_id')
-    project = IntegerField(db_column='project_id', index=True)
+    lfs_object = IntegerField(column_name='lfs_object_id')
+    project = IntegerField(column_name='project_id', index=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'lfs_objects_projects'
+        table_name = 'lfs_objects_projects'
 
 class Lists(BaseModel):
-    board = ForeignKeyField(db_column='board_id', rel_model=Boards, to_field='id')
+    board = ForeignKeyField(column_name='board_id', field='id', model=Boards)
     created_at = DateTimeField()
-    label = ForeignKeyField(db_column='label_id', null=True, rel_model=Labels, to_field='id')
+    label = ForeignKeyField(column_name='label_id', field='id', model=Labels, null=True)
     list_type = IntegerField()
     position = IntegerField(null=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'lists'
+        table_name = 'lists'
         indexes = (
             (('board', 'label'), True),
         )
@@ -1253,52 +1253,52 @@ class Lists(BaseModel):
 class Members(BaseModel):
     access_level = IntegerField(index=True)
     created_at = DateTimeField(null=True)
-    created_by = IntegerField(db_column='created_by_id', null=True)
+    created_by = IntegerField(column_name='created_by_id', null=True)
     expires_at = DateField(null=True)
     invite_accepted_at = DateTimeField(null=True)
     invite_email = CharField(null=True)
     invite_token = CharField(null=True, unique=True)
     notification_level = IntegerField()
     requested_at = DateTimeField(index=True, null=True)
-    source = IntegerField(db_column='source_id')
+    source = IntegerField(column_name='source_id')
     source_type = CharField()
     type = CharField(null=True)
     updated_at = DateTimeField(null=True)
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'members'
+        table_name = 'members'
         indexes = (
             (('source_type', 'source'), False),
         )
 
 class Notes(BaseModel):
     attachment = CharField(null=True)
-    author = IntegerField(db_column='author_id', index=True, null=True)
+    author = IntegerField(column_name='author_id', index=True, null=True)
     cached_markdown_version = IntegerField(null=True)
     change_position = TextField(null=True)
-    commit = CharField(db_column='commit_id', index=True, null=True)
+    commit = CharField(column_name='commit_id', index=True, null=True)
     created_at = DateTimeField(index=True, null=True)
-    discussion = CharField(db_column='discussion_id', index=True, null=True)
+    discussion = CharField(column_name='discussion_id', index=True, null=True)
     line_code = CharField(index=True, null=True)
     note = TextField(index=True, null=True)
     note_html = TextField(null=True)
-    noteable = IntegerField(db_column='noteable_id', null=True)
+    noteable = IntegerField(column_name='noteable_id', null=True)
     noteable_type = CharField(index=True, null=True)
     original_position = TextField(null=True)
     position = TextField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     resolved_at = DateTimeField(null=True)
-    resolved_by = IntegerField(db_column='resolved_by_id', null=True)
+    resolved_by = IntegerField(column_name='resolved_by_id', null=True)
     resolved_by_push = BooleanField(null=True)
     st_diff = TextField(null=True)
     system = BooleanField()
     type = CharField(null=True)
     updated_at = DateTimeField(index=True, null=True)
-    updated_by = IntegerField(db_column='updated_by_id', null=True)
+    updated_by = IntegerField(column_name='updated_by_id', null=True)
 
     class Meta:
-        db_table = 'notes'
+        table_name = 'notes'
         indexes = (
             (('noteable', 'noteable_type'), False),
             (('project', 'noteable_type'), False),
@@ -1318,49 +1318,49 @@ class NotificationSettings(BaseModel):
     reassign_merge_request = BooleanField(null=True)
     reopen_issue = BooleanField(null=True)
     reopen_merge_request = BooleanField(null=True)
-    source = IntegerField(db_column='source_id', null=True)
+    source = IntegerField(column_name='source_id', null=True)
     source_type = CharField(null=True)
     success_pipeline = BooleanField(null=True)
     updated_at = DateTimeField()
-    user = IntegerField(db_column='user_id', index=True)
+    user = IntegerField(column_name='user_id', index=True)
 
     class Meta:
-        db_table = 'notification_settings'
+        table_name = 'notification_settings'
         indexes = (
             (('source', 'source_type'), False),
             (('source', 'source_type', 'user'), True),
         )
 
 class OauthAccessGrants(BaseModel):
-    application = IntegerField(db_column='application_id')
+    application = IntegerField(column_name='application_id')
     created_at = DateTimeField()
     expires_in = IntegerField()
     redirect_uri = TextField()
-    resource_owner = IntegerField(db_column='resource_owner_id')
+    resource_owner = IntegerField(column_name='resource_owner_id')
     revoked_at = DateTimeField(null=True)
     scopes = CharField(null=True)
     token = CharField(unique=True)
 
     class Meta:
-        db_table = 'oauth_access_grants'
+        table_name = 'oauth_access_grants'
 
 class OauthAccessTokens(BaseModel):
-    application = IntegerField(db_column='application_id', null=True)
+    application = IntegerField(column_name='application_id', null=True)
     created_at = DateTimeField()
     expires_in = IntegerField(null=True)
     refresh_token = CharField(null=True, unique=True)
-    resource_owner = IntegerField(db_column='resource_owner_id', index=True, null=True)
+    resource_owner = IntegerField(column_name='resource_owner_id', index=True, null=True)
     revoked_at = DateTimeField(null=True)
     scopes = CharField(null=True)
     token = CharField(unique=True)
 
     class Meta:
-        db_table = 'oauth_access_tokens'
+        table_name = 'oauth_access_tokens'
 
 class OauthApplications(BaseModel):
     created_at = DateTimeField(null=True)
     name = CharField()
-    owner = IntegerField(db_column='owner_id', null=True)
+    owner = IntegerField(column_name='owner_id', null=True)
     owner_type = CharField(null=True)
     redirect_uri = TextField()
     scopes = CharField()
@@ -1370,17 +1370,17 @@ class OauthApplications(BaseModel):
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'oauth_applications'
+        table_name = 'oauth_applications'
         indexes = (
             (('owner', 'owner_type'), False),
         )
 
 class OauthOpenidRequests(BaseModel):
-    access_grant = ForeignKeyField(db_column='access_grant_id', rel_model=OauthAccessGrants, to_field='id')
+    access_grant = ForeignKeyField(column_name='access_grant_id', field='id', model=OauthAccessGrants)
     nonce = CharField()
 
     class Meta:
-        db_table = 'oauth_openid_requests'
+        table_name = 'oauth_openid_requests'
 
 class PagesDomains(BaseModel):
     certificate = TextField(null=True)
@@ -1389,12 +1389,12 @@ class PagesDomains(BaseModel):
     encrypted_key = TextField(null=True)
     encrypted_key_iv = CharField(null=True)
     encrypted_key_salt = CharField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     verification_code = CharField()
     verified_at = DateTimeField(index=True, null=True)
 
     class Meta:
-        db_table = 'pages_domains'
+        table_name = 'pages_domains'
         indexes = (
             (('project', 'enabled_until'), False),
             (('verified_at', 'enabled_until'), False),
@@ -1409,41 +1409,42 @@ class PersonalAccessTokens(BaseModel):
     scopes = CharField()
     token = CharField(unique=True)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
-        db_table = 'personal_access_tokens'
+        table_name = 'personal_access_tokens'
 
 class ProjectAuthorizations(BaseModel):
     access_level = IntegerField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'project_authorizations'
+        table_name = 'project_authorizations'
         indexes = (
             (('user', 'project', 'access_level'), True),
         )
+        primary_key = False
 
 class ProjectAutoDevops(BaseModel):
     created_at = DateTimeField()
     domain = CharField(null=True)
     enabled = BooleanField(null=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id', unique=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, unique=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'project_auto_devops'
+        table_name = 'project_auto_devops'
 
 class ProjectCustomAttributes(BaseModel):
     created_at = DateTimeField()
     key = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField()
     value = CharField()
 
     class Meta:
-        db_table = 'project_custom_attributes'
+        table_name = 'project_custom_attributes'
         indexes = (
             (('key', 'value'), False),
             (('project', 'key'), True),
@@ -1454,94 +1455,94 @@ class ProjectFeatures(BaseModel):
     created_at = DateTimeField(null=True)
     issues_access_level = IntegerField(null=True)
     merge_requests_access_level = IntegerField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     repository_access_level = IntegerField()
     snippets_access_level = IntegerField(null=True)
     updated_at = DateTimeField(null=True)
     wiki_access_level = IntegerField(null=True)
 
     class Meta:
-        db_table = 'project_features'
+        table_name = 'project_features'
 
 class ProjectGroupLinks(BaseModel):
     created_at = DateTimeField(null=True)
     expires_at = DateField(null=True)
     group_access = IntegerField()
-    group = IntegerField(db_column='group_id', index=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    group = IntegerField(column_name='group_id', index=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'project_group_links'
+        table_name = 'project_group_links'
 
 class ProjectImportData(BaseModel):
     data = TextField(null=True)
     encrypted_credentials = TextField(null=True)
     encrypted_credentials_iv = CharField(null=True)
     encrypted_credentials_salt = CharField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
 
     class Meta:
-        db_table = 'project_import_data'
+        table_name = 'project_import_data'
 
 class ProjectStatistics(BaseModel):
     build_artifacts_size = BigIntegerField()
     commit_count = BigIntegerField()
     lfs_objects_size = BigIntegerField()
-    namespace = IntegerField(db_column='namespace_id', index=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id', unique=True)
+    namespace = IntegerField(column_name='namespace_id', index=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, unique=True)
     repository_size = BigIntegerField()
     storage_size = BigIntegerField()
 
     class Meta:
-        db_table = 'project_statistics'
+        table_name = 'project_statistics'
 
 class ProtectedBranches(BaseModel):
     created_at = DateTimeField(null=True)
     name = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'protected_branches'
+        table_name = 'protected_branches'
 
 class ProtectedBranchMergeAccessLevels(BaseModel):
     access_level = IntegerField()
     created_at = DateTimeField()
-    protected_branch = ForeignKeyField(db_column='protected_branch_id', rel_model=ProtectedBranches, to_field='id')
+    protected_branch = ForeignKeyField(column_name='protected_branch_id', field='id', model=ProtectedBranches)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'protected_branch_merge_access_levels'
+        table_name = 'protected_branch_merge_access_levels'
 
 class ProtectedBranchPushAccessLevels(BaseModel):
     access_level = IntegerField()
     created_at = DateTimeField()
-    protected_branch = ForeignKeyField(db_column='protected_branch_id', rel_model=ProtectedBranches, to_field='id')
+    protected_branch = ForeignKeyField(column_name='protected_branch_id', field='id', model=ProtectedBranches)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'protected_branch_push_access_levels'
+        table_name = 'protected_branch_push_access_levels'
 
 class ProtectedTags(BaseModel):
     created_at = DateTimeField()
     name = CharField()
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'protected_tags'
+        table_name = 'protected_tags'
 
 class ProtectedTagCreateAccessLevels(BaseModel):
     access_level = IntegerField(null=True)
     created_at = DateTimeField()
-    group = ForeignKeyField(db_column='group_id', null=True, rel_model=Namespaces, to_field='id')
-    protected_tag = ForeignKeyField(db_column='protected_tag_id', rel_model=ProtectedTags, to_field='id')
+    group = ForeignKeyField(column_name='group_id', field='id', model=Namespaces, null=True)
+    protected_tag = ForeignKeyField(column_name='protected_tag_id', field='id', model=ProtectedTags)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'protected_tag_create_access_levels'
+        table_name = 'protected_tag_create_access_levels'
 
 class PushEventPayloads(BaseModel):
     action = IntegerField()
@@ -1549,23 +1550,24 @@ class PushEventPayloads(BaseModel):
     commit_from = BlobField(null=True)
     commit_title = CharField(null=True)
     commit_to = BlobField(null=True)
-    event = ForeignKeyField(db_column='event_id', rel_model=Events, to_field='id', unique=True)
+    event = ForeignKeyField(column_name='event_id', field='id', model=Events, unique=True)
     ref = TextField(null=True)
     ref_type = IntegerField()
 
     class Meta:
-        db_table = 'push_event_payloads'
+        table_name = 'push_event_payloads'
+        primary_key = False
 
 class RedirectRoutes(BaseModel):
     created_at = DateTimeField()
     path = CharField(unique=True)
     permanent = BooleanField(null=True)
-    source = IntegerField(db_column='source_id')
+    source = IntegerField(column_name='source_id')
     source_type = CharField()
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'redirect_routes'
+        table_name = 'redirect_routes'
         indexes = (
             (('source', 'source_type'), False),
         )
@@ -1575,12 +1577,12 @@ class Releases(BaseModel):
     created_at = DateTimeField(null=True)
     description = TextField(null=True)
     description_html = TextField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     tag = CharField(null=True)
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'releases'
+        table_name = 'releases'
         indexes = (
             (('tag', 'project'), False),
         )
@@ -1589,12 +1591,12 @@ class Routes(BaseModel):
     created_at = DateTimeField(null=True)
     name = CharField(null=True)
     path = CharField(index=True)
-    source = IntegerField(db_column='source_id')
+    source = IntegerField(column_name='source_id')
     source_type = CharField()
     updated_at = DateTimeField(null=True)
 
     class Meta:
-        db_table = 'routes'
+        table_name = 'routes'
         indexes = (
             (('source', 'source_type'), True),
         )
@@ -1603,25 +1605,26 @@ class SchemaMigrations(BaseModel):
     version = CharField(unique=True)
 
     class Meta:
-        db_table = 'schema_migrations'
+        table_name = 'schema_migrations'
+        primary_key = False
 
 class SentNotifications(BaseModel):
-    commit = CharField(db_column='commit_id', null=True)
-    in_reply_to_discussion = CharField(db_column='in_reply_to_discussion_id', null=True)
+    commit = CharField(column_name='commit_id', null=True)
+    in_reply_to_discussion = CharField(column_name='in_reply_to_discussion_id', null=True)
     line_code = CharField(null=True)
     note_type = CharField(null=True)
-    noteable = IntegerField(db_column='noteable_id', null=True)
+    noteable = IntegerField(column_name='noteable_id', null=True)
     noteable_type = CharField(null=True)
     position = TextField(null=True)
-    project = IntegerField(db_column='project_id', null=True)
-    recipient = IntegerField(db_column='recipient_id', null=True)
+    project = IntegerField(column_name='project_id', null=True)
+    recipient = IntegerField(column_name='recipient_id', null=True)
     reply_key = CharField(unique=True)
 
     class Meta:
-        db_table = 'sent_notifications'
+        table_name = 'sent_notifications'
 
 class Snippets(BaseModel):
-    author = IntegerField(db_column='author_id', index=True)
+    author = IntegerField(column_name='author_id', index=True)
     cached_markdown_version = IntegerField(null=True)
     content = TextField(null=True)
     content_html = TextField(null=True)
@@ -1629,7 +1632,7 @@ class Snippets(BaseModel):
     description = TextField(null=True)
     description_html = TextField(null=True)
     file_name = CharField(index=True, null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     title = CharField(index=True, null=True)
     title_html = TextField(null=True)
     type = CharField(null=True)
@@ -1637,7 +1640,7 @@ class Snippets(BaseModel):
     visibility_level = IntegerField(index=True)
 
     class Meta:
-        db_table = 'snippets'
+        table_name = 'snippets'
 
 class SpamLogs(BaseModel):
     created_at = DateTimeField()
@@ -1649,23 +1652,23 @@ class SpamLogs(BaseModel):
     title = CharField(null=True)
     updated_at = DateTimeField()
     user_agent = CharField(null=True)
-    user = IntegerField(db_column='user_id', null=True)
+    user = IntegerField(column_name='user_id', null=True)
     via_api = BooleanField(null=True)
 
     class Meta:
-        db_table = 'spam_logs'
+        table_name = 'spam_logs'
 
 class Subscriptions(BaseModel):
     created_at = DateTimeField(null=True)
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
-    subscribable = IntegerField(db_column='subscribable_id', null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
+    subscribable = IntegerField(column_name='subscribable_id', null=True)
     subscribable_type = CharField(null=True)
     subscribed = BooleanField(null=True)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id', null=True)
+    user = IntegerField(column_name='user_id', null=True)
 
     class Meta:
-        db_table = 'subscriptions'
+        table_name = 'subscriptions'
         indexes = (
             (('user', 'subscribable', 'subscribable_type', 'project'), True),
         )
@@ -1674,23 +1677,23 @@ class SystemNoteMetadata(BaseModel):
     action = CharField(null=True)
     commit_count = IntegerField(null=True)
     created_at = DateTimeField()
-    note = ForeignKeyField(db_column='note_id', rel_model=Notes, to_field='id', unique=True)
+    note = ForeignKeyField(column_name='note_id', field='id', model=Notes, unique=True)
     updated_at = DateTimeField()
 
     class Meta:
-        db_table = 'system_note_metadata'
+        table_name = 'system_note_metadata'
 
 class Taggings(BaseModel):
     context = CharField(null=True)
     created_at = DateTimeField(null=True)
-    tag = IntegerField(db_column='tag_id', index=True, null=True)
-    taggable = IntegerField(db_column='taggable_id', null=True)
+    tag = IntegerField(column_name='tag_id', index=True, null=True)
+    taggable = IntegerField(column_name='taggable_id', null=True)
     taggable_type = CharField(null=True)
-    tagger = IntegerField(db_column='tagger_id', null=True)
+    tagger = IntegerField(column_name='tagger_id', null=True)
     tagger_type = CharField(null=True)
 
     class Meta:
-        db_table = 'taggings'
+        table_name = 'taggings'
         indexes = (
             (('taggable', 'taggable_type', 'context'), False),
             (('taggable_type', 'taggable'), False),
@@ -1702,23 +1705,23 @@ class Tags(BaseModel):
     taggings_count = IntegerField(null=True)
 
     class Meta:
-        db_table = 'tags'
+        table_name = 'tags'
 
 class Todos(BaseModel):
     action = IntegerField()
-    author = ForeignKeyField(db_column='author_id', rel_model=Users, to_field='id')
-    commit = CharField(db_column='commit_id', index=True, null=True)
+    author = ForeignKeyField(column_name='author_id', field='id', model=Users)
+    commit = CharField(column_name='commit_id', index=True, null=True)
     created_at = DateTimeField(null=True)
-    note = ForeignKeyField(db_column='note_id', null=True, rel_model=Notes, to_field='id')
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    note = ForeignKeyField(column_name='note_id', field='id', model=Notes, null=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     state = CharField()
-    target = IntegerField(db_column='target_id', null=True)
+    target = IntegerField(column_name='target_id', null=True)
     target_type = CharField()
     updated_at = DateTimeField(null=True)
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, related_name='users_user_set', to_field='id')
+    user = ForeignKeyField(backref='users_user_set', column_name='user_id', field='id', model=Users)
 
     class Meta:
-        db_table = 'todos'
+        table_name = 'todos'
         indexes = (
             (('id', 'user'), False),
             (('target_type', 'target'), False),
@@ -1726,10 +1729,10 @@ class Todos(BaseModel):
         )
 
 class TrendingProjects(BaseModel):
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id', unique=True)
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, unique=True)
 
     class Meta:
-        db_table = 'trending_projects'
+        table_name = 'trending_projects'
 
 class U2FRegistrations(BaseModel):
     certificate = TextField(null=True)
@@ -1739,21 +1742,21 @@ class U2FRegistrations(BaseModel):
     name = CharField(null=True)
     public_key = CharField(null=True)
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', null=True, rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, null=True)
 
     class Meta:
-        db_table = 'u2f_registrations'
+        table_name = 'u2f_registrations'
 
 class UntrackedFilesForUploads(BaseModel):
     path = CharField(unique=True)
 
     class Meta:
-        db_table = 'untracked_files_for_uploads'
+        table_name = 'untracked_files_for_uploads'
 
 class Uploads(BaseModel):
     checksum = CharField(index=True, null=True)
     created_at = DateTimeField()
-    model = IntegerField(db_column='model_id', null=True)
+    model = IntegerField(column_name='model_id', null=True)
     model_type = CharField(null=True)
     mount_point = CharField(null=True)
     path = CharField()
@@ -1762,7 +1765,7 @@ class Uploads(BaseModel):
     uploader = CharField()
 
     class Meta:
-        db_table = 'uploads'
+        table_name = 'uploads'
         indexes = (
             (('model', 'model_type'), False),
             (('path', 'uploader'), False),
@@ -1771,24 +1774,24 @@ class Uploads(BaseModel):
 class UserAgentDetails(BaseModel):
     created_at = DateTimeField()
     ip_address = CharField()
-    subject = IntegerField(db_column='subject_id')
+    subject = IntegerField(column_name='subject_id')
     subject_type = CharField()
     submitted = BooleanField()
     updated_at = DateTimeField()
     user_agent = CharField()
 
     class Meta:
-        db_table = 'user_agent_details'
+        table_name = 'user_agent_details'
         indexes = (
             (('subject', 'subject_type'), False),
         )
 
 class UserCallouts(BaseModel):
     feature_name = IntegerField()
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
-        db_table = 'user_callouts'
+        table_name = 'user_callouts'
         indexes = (
             (('feature_name', 'user'), True),
         )
@@ -1797,44 +1800,45 @@ class UserCustomAttributes(BaseModel):
     created_at = DateTimeField()
     key = CharField()
     updated_at = DateTimeField()
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
     value = CharField()
 
     class Meta:
-        db_table = 'user_custom_attributes'
+        table_name = 'user_custom_attributes'
         indexes = (
             (('key', 'value'), False),
             (('user', 'key'), True),
         )
 
 class UserInteractedProjects(BaseModel):
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
-        db_table = 'user_interacted_projects'
+        table_name = 'user_interacted_projects'
         indexes = (
             (('user', 'project'), True),
         )
+        primary_key = False
 
 class UserSyncedAttributesMetadata(BaseModel):
     email_synced = BooleanField(null=True)
     location_synced = BooleanField(null=True)
     name_synced = BooleanField(null=True)
     provider = CharField(null=True)
-    user = ForeignKeyField(db_column='user_id', rel_model=Users, to_field='id', unique=True)
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users, unique=True)
 
     class Meta:
-        db_table = 'user_synced_attributes_metadata'
+        table_name = 'user_synced_attributes_metadata'
 
 class UsersStarProjects(BaseModel):
     created_at = DateTimeField(null=True)
-    project = ForeignKeyField(db_column='project_id', rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects)
     updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id')
+    user = IntegerField(column_name='user_id')
 
     class Meta:
-        db_table = 'users_star_projects'
+        table_name = 'users_star_projects'
         indexes = (
             (('project', 'user'), True),
         )
@@ -1849,10 +1853,10 @@ class WebHooks(BaseModel):
     merge_requests_events = BooleanField()
     note_events = BooleanField()
     pipeline_events = BooleanField()
-    project = ForeignKeyField(db_column='project_id', null=True, rel_model=Projects, to_field='id')
+    project = ForeignKeyField(column_name='project_id', field='id', model=Projects, null=True)
     push_events = BooleanField()
     repository_update_events = BooleanField()
-    service = IntegerField(db_column='service_id', null=True)
+    service = IntegerField(column_name='service_id', null=True)
     tag_push_events = BooleanField(null=True)
     token = CharField(null=True)
     type = CharField(index=True, null=True)
@@ -1861,7 +1865,7 @@ class WebHooks(BaseModel):
     wiki_page_events = BooleanField()
 
     class Meta:
-        db_table = 'web_hooks'
+        table_name = 'web_hooks'
 
 class WebHookLogs(BaseModel):
     created_at = DateTimeField()
@@ -1875,8 +1879,8 @@ class WebHookLogs(BaseModel):
     trigger = CharField(null=True)
     updated_at = DateTimeField()
     url = CharField(null=True)
-    web_hook = ForeignKeyField(db_column='web_hook_id', rel_model=WebHooks, to_field='id')
+    web_hook = ForeignKeyField(column_name='web_hook_id', field='id', model=WebHooks)
 
     class Meta:
-        db_table = 'web_hook_logs'
+        table_name = 'web_hook_logs'
 
