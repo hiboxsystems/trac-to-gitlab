@@ -202,7 +202,7 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             for component in src_ticket_component.split(','):
                 new_labels.append(component.strip())
 
-        new_state = ''
+        new_state = 'opened'
         if src_ticket_status == 'new':
             new_state = 'opened'
         elif src_ticket_status == 'assigned':
