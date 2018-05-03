@@ -5,6 +5,6 @@ import importlib
 try:
     version = os.environ['MODEL_VERSION']
 except KeyError:
-    version = '106'
+    version = '107'
 
 exec "from .model%s import *" % version

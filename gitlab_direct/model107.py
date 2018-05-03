@@ -396,24 +396,6 @@ class CiPipelines(BaseModel):
             (('sha', 'project'), False),
         )
 
-# Possible reference cycle: merge_requests
-class MergeRequestDiffs(BaseModel):
-    base_commit_sha = CharField(null=True)
-    commits_count = IntegerField(null=True)
-    created_at = DateTimeField(null=True)
-    head_commit_sha = CharField(null=True)
-    merge_request = ForeignKeyField(db_column='merge_request_id', rel_model=MergeRequests, to_field='id')
-    real_size = CharField(null=True)
-    start_commit_sha = CharField(null=True)
-    state = CharField(null=True)
-    updated_at = DateTimeField(null=True)
-
-    class Meta:
-        db_table = 'merge_request_diffs'
-        indexes = (
-            (('id', 'merge_request'), False),
-        )
-
 class Plans(BaseModel):
     active_pipelines_limit = IntegerField(null=True)
     created_at = DateTimeField()
@@ -481,62 +463,6 @@ class Milestones(BaseModel):
         indexes = (
             (('project', 'iid'), True),
         )
-
-class MergeRequests(BaseModel):
-    allow_maintainer_to_push = BooleanField(null=True)
-    approvals_before_merge = IntegerField(null=True)
-    assignee = ForeignKeyField(db_column='assignee_id', null=True, rel_model=Users, to_field='id')
-    author = ForeignKeyField(db_column='author_id', null=True, rel_model=Users, related_name='users_author_set', to_field='id')
-    cached_markdown_version = IntegerField(null=True)
-    created_at = DateTimeField(index=True, null=True)
-    description = TextField(index=True, null=True)
-    description_html = TextField(null=True)
-    discussion_locked = BooleanField(null=True)
-    head_pipeline = ForeignKeyField(db_column='head_pipeline_id', null=True, rel_model=CiPipelines, to_field='id')
-    iid = IntegerField(null=True)
-    in_progress_merge_commit_sha = CharField(null=True)
-    last_edited_at = DateTimeField(null=True)
-    last_edited_by = IntegerField(db_column='last_edited_by_id', null=True)
-    latest_merge_request_diff = ForeignKeyField(db_column='latest_merge_request_diff_id', null=True, rel_model=MergeRequestDiffs, to_field='id')
-    lock_version = IntegerField(null=True)
-    merge_commit_sha = CharField(null=True)
-    merge_error = TextField(null=True)
-    merge_jid = CharField(null=True)
-    merge_params = TextField(null=True)
-    merge_status = CharField()
-    merge_user = ForeignKeyField(db_column='merge_user_id', null=True, rel_model=Users, related_name='users_merge_user_set', to_field='id')
-    merge_when_pipeline_succeeds = BooleanField()
-    milestone = ForeignKeyField(db_column='milestone_id', null=True, rel_model=Milestones, to_field='id')
-    rebase_commit_sha = CharField(null=True)
-    source_branch = CharField(index=True)
-    source_project = ForeignKeyField(db_column='source_project_id', null=True, rel_model=Projects, to_field='id')
-    squash = BooleanField()
-    state = CharField()
-    target_branch = CharField(index=True)
-    target_project = ForeignKeyField(db_column='target_project_id', rel_model=Projects, related_name='projects_target_project_set', to_field='id')
-    time_estimate = IntegerField(null=True)
-    title = CharField(index=True, null=True)
-    title_html = TextField(null=True)
-    updated_at = DateTimeField(null=True)
-    updated_by = ForeignKeyField(db_column='updated_by_id', null=True, rel_model=Users, related_name='users_updated_by_set', to_field='id')
-
-    class Meta:
-        db_table = 'merge_requests'
-        indexes = (
-            (('merge_commit_sha', 'target_project', 'id'), False),
-            (('source_branch', 'source_project'), False),
-            (('source_project', 'source_branch'), False),
-            (('target_project', 'iid'), True),
-        )
-
-class Approvals(BaseModel):
-    created_at = DateTimeField(null=True)
-    merge_request = ForeignKeyField(db_column='merge_request_id', rel_model=MergeRequests, to_field='id')
-    updated_at = DateTimeField(null=True)
-    user = IntegerField(db_column='user_id')
-
-    class Meta:
-        db_table = 'approvals'
 
 class ApproverGroups(BaseModel):
     created_at = DateTimeField(null=True)
@@ -1876,31 +1802,6 @@ class MergeRequestDiffFiles(BaseModel):
             (('merge_request_diff', 'relative_order'), True),
         )
 
-class MergeRequestMetrics(BaseModel):
-    created_at = DateTimeField()
-    first_deployed_to_production_at = DateTimeField(index=True, null=True)
-    latest_build_finished_at = DateTimeField(null=True)
-    latest_build_started_at = DateTimeField(null=True)
-    latest_closed_at = DateTimeField(null=True)
-    latest_closed_by = ForeignKeyField(db_column='latest_closed_by_id', null=True, rel_model=Users, to_field='id')
-    merge_request = ForeignKeyField(db_column='merge_request_id', rel_model=MergeRequests, to_field='id')
-    merged_at = DateTimeField(null=True)
-    merged_by = ForeignKeyField(db_column='merged_by_id', null=True, rel_model=Users, related_name='users_merged_by_set', to_field='id')
-    pipeline = ForeignKeyField(db_column='pipeline_id', null=True, rel_model=CiPipelines, to_field='id')
-    updated_at = DateTimeField()
-
-    class Meta:
-        db_table = 'merge_request_metrics'
-
-class MergeRequestsClosingIssues(BaseModel):
-    created_at = DateTimeField()
-    issue = ForeignKeyField(db_column='issue_id', rel_model=Issues, to_field='id')
-    merge_request = ForeignKeyField(db_column='merge_request_id', rel_model=MergeRequests, to_field='id')
-    updated_at = DateTimeField()
-
-    class Meta:
-        db_table = 'merge_requests_closing_issues'
-
 class NamespaceStatistics(BaseModel):
     namespace = ForeignKeyField(db_column='namespace_id', rel_model=Namespaces, to_field='id', unique=True)
     shared_runners_seconds = IntegerField()
@@ -2484,18 +2385,6 @@ class Tags(BaseModel):
 
     class Meta:
         db_table = 'tags'
-
-class Timelogs(BaseModel):
-    created_at = DateTimeField()
-    issue = ForeignKeyField(db_column='issue_id', null=True, rel_model=Issues, to_field='id')
-    merge_request = ForeignKeyField(db_column='merge_request_id', null=True, rel_model=MergeRequests, to_field='id')
-    spent_at = DateTimeField(null=True)
-    time_spent = IntegerField()
-    updated_at = DateTimeField()
-    user = IntegerField(db_column='user_id', index=True, null=True)
-
-    class Meta:
-        db_table = 'timelogs'
 
 class Todos(BaseModel):
     action = IntegerField()
