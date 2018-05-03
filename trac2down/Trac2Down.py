@@ -78,10 +78,10 @@ def save_file(text, name, version, date, author, directory):
         os.makedirs("%s%s" % (directory, folders[0]))
     fp = open('%s%s.%s' % (directory, name, markdown_extension), 'w')
     if meta_header:
-        fp.write('<!-- Name: %s -->' % name)
-        fp.write('<!-- Version: %d -->' % version)
-        fp.write('<!-- Last-Modified: %s -->' % date)
-        fp.write('<!-- Author: %s -->' % author)
+        fp.write(u'<!-- Name: %s -->' % name)
+        fp.write(u'<!-- Version: %d -->' % version)
+        fp.write(u'<!-- Last-Modified: %s -->' % date)
+        fp.write(u'<!-- Author: %s -->' % author)
     fp.write(unicode(text))
     fp.close()
 
