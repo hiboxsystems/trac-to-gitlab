@@ -28,7 +28,7 @@ This script takes care of the last two bullet points and provides help for the t
 
  Usage:
 
-  1. Install dependencies: `pip3 install -r requirements.txt`
+  1. Install dependencies: `pip install -r requirements.txt`
   1. `cp migrate.cfg.example migrate.cfg`
   2. Edit `migrate.cfg`, tweaking the values to your needs.
   3. Run `./collect-users.py` to extract the user names from Trac
@@ -110,7 +110,7 @@ History
 Requirements
 ==============
 
- * Python 3.2, xmlrpclib, requests
+ * Python 2.7, xmlrpclib, requests
  * Trac with [XML-RPC plugin](http://trac-hacks.org/wiki/XmlRpcPlugin) enabled
  * Gitlab
 
