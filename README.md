@@ -28,11 +28,12 @@ This script takes care of the last two bullet points and provides help for the t
 
  Usage:
 
-  1. copy ```migrate.cfg.example``` to ```migrate.cfg```
-  2. configure the values
-  3. run ```./collect-users.py``` to extract the user names from Trac
-  4. update ```migrate.cfg``` and create the users in GitLab
-  5. run (```./migrate.py```). Make sure you test it on a test project prior, if you run it twice against the same project you will get duplicated issues unless you're using direct access with overwrite set to yes.
+  1. Install dependencies: `pip3 install -r requirements.txt`
+  1. `cp migrate.cfg.example migrate.cfg`
+  2. Edit `migrate.cfg`, tweaking the values to your needs.
+  3. Run `./collect-users.py` to extract the user names from Trac
+  4. Update `migrate.cfg` and create the users in GitLab
+  5. Run (`./migrate.py`). Make sure you test it on a test project prior, if you run it twice against the same project you will get duplicated issues unless you're using direct access with overwrite set to yes.
 
 Issues and milestones are copied to GitLab.
 
@@ -61,39 +62,39 @@ The configuration must be located in a file named "migrate.cfg"
 Source
 -------
 
- * ```url``` - xmlrpc url to trac, e.g. ```https://user:secret@www.example.com/projects/thisismyproject/login/xmlrpc```
+ * `url` - xmlrpc url to trac, e.g. `https://user:secret@www.example.com/projects/thisismyproject/login/xmlrpc`
 
 Target
 -------
 
- * ```project_name``` - the destination project including the paths to it. Basically the rest of the clone url minus the ".git". E.g. ```jens.neuhalfen/task-ninja```.
- * ```method``` - direct or api
+ * `project_name` - the destination project including the paths to it. Basically the rest of the clone url minus the ".git". E.g. `jens.neuhalfen/task-ninja`.
+ * `method` - direct or api
 
-ÄPI mode:
+API mode:
 
- * ```url``` - e.g. ```https://www.exmple.com/gitlab/api/v3```
- * ```access_token``` - the access token of the user creating all the issues. Found on the account page,  e.g. ```secretsecretsecret```
- * ```ssl_verify``` - set to ```yes``` to verify SSL server certificates.
+ * `url` - e.g. `https://www.exmple.com/gitlab/api/v3`
+ * `access_token` - the access token of the user creating all the issues. Found on the account page,  e.g. `secretsecretsecret`
+ * `ssl_verify` - set to `yes` to verify SSL server certificates.
 
 Direct mode:
 
- * ```overwrite````- if set to yes, the milestones and issues are cleared for this projects and issues are recreated with their trac id (useful to preserve trac links)
- * ```db-name``` - MySQL database name
- * ```db-user``` - MySQL user name
- * ```db-password``` - MySQL password
- * ```uploads``` - GitLab uploads directory
- * ```usernames``` Comma separed list of username mappings such as: ```trac1->git1, trac2->git2```
+ * `overwrite` - if set to yes, the milestones and issues are cleared for this projects and issues are recreated with their trac id (useful to preserve trac links)
+ * `db-name` - MySQL database name
+ * `db-user` - MySQL user name
+ * `db-password` - MySQL password
+ * `uploads` - GitLab uploads directory
+ * `usernames` Comma separed list of username mappings such as: `trac1->git1, trac2->git2`
 
 Wiki
 ----
 
- * ```migrate``` - Should the wiki pages be converted?
- * ```target-directory``` - Directory in which the wiki pages should be written
+ * `migrate` - Should the wiki pages be converted?
+ * `target-directory` - Directory in which the wiki pages should be written
 
 Issues
 ------
 
- * ```migrate``` - Should we migrate issues and milestones?
+ * `migrate` - Should we migrate issues and milestones?
 
 Licenses
 ========
@@ -112,7 +113,8 @@ Requirements
  * Python 3.2, xmlrpclib, requests
  * Trac with [XML-RPC plugin](http://trac-hacks.org/wiki/XmlRpcPlugin) enabled
  * Gitlab
- 
+
  And also, if you use the direct access to GitLab's database:
- * [peewee](https://github.com/coleifer/peewee) 
- * [PyMySQl](https://github.com/PyMySQL/PyMySQL)
+
+ * [peewee](https://github.com/coleifer/peewee)
+ * [PyMySQL](https://github.com/PyMySQL/PyMySQL)
