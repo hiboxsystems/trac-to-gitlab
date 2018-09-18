@@ -26,7 +26,7 @@ What
 License
 ========
 
- License: http://www.wtfpl.net/
+ License: GPLv3
 
 Requirements
 ==============
