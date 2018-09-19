@@ -37,7 +37,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 default_config = {
-    'ssl_verify': 'no',
+    'ssl_verify': 'yes',
     'migrate' : 'true',
     'overwrite' : 'true',
     'exclude_authors' : 'trac',
