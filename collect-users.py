@@ -16,12 +16,12 @@ import sys
 What
 =====
 
- This script migrates issues from trac to gitlab.
+ This script creates a user mapping for converting from trac to gitlab.
 
 License
 ========
 
- License: http://www.wtfpl.net/
+ License: GPLv3
 
 Requirements
 ==============
