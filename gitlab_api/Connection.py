@@ -1,6 +1,6 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
 '''
-Copyright © 2013 
+Copyright © 2013
     Eric van der Vlist <vdv@dyomedea.com>
     Jens Neuhalfen <http://www.neuhalfen.name/>
 See license information at the bottom of this file
@@ -155,12 +155,12 @@ class Connection(object):
 '''
 This file is part of <https://gitlab.dyomedea.com/vdv/trac-to-gitlab>.
 
-This sotfware is free software: you can redistribute it and/or modify
+This software is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-This sotfware is distributed in the hope that it will be useful,
+This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Lesser General Public License for more details.
