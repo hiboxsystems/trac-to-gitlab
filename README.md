@@ -99,7 +99,7 @@ Issues
 Licenses
 ========
 
-GPL license version 3.0 (see the [licences directory](licences)).
+GPL license version 3.0: [LICENSE](LICENSE)
 
 `gitlab_direct/model110.py` was copied from
 https://github.com/tracboat/tracboat which is licensed under the GPLv3.
