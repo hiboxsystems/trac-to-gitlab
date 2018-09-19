@@ -29,7 +29,7 @@ url: https://gitlab.example.com/api/v3
 # API access token (if method = api)
 access_token: secretsecret
 
-# Uncomment to verify SSL keys (default = no ) (if method = api)
+# Uncomment to verify SSL keys (default = yes ) (if method = api)
 # ssl_verify: yes
 
 # Overwrite existing project's data in the database (if method = direct, default = yes)
