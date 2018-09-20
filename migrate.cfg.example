@@ -24,7 +24,7 @@ project_name: foo/bar
 method: direct
 
 # URL of the GitLab web API (if method = api)
-url: https://gitlab.example.com/api/v3
+url: https://gitlab.example.com/api/v4
 
 # API access token (if method = api)
 access_token: secretsecret

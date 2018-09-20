@@ -73,7 +73,7 @@ Target
 API mode:
 
  * `url` - e.g. `https://www.exmple.com/gitlab/api/v3`
- * `access_token` - the access token of the user creating all the issues. Found on the account page,  e.g. `secretsecretsecret`
+ * `access_token` - the personal access token of the user creating all the issues. Found on the account page,  e.g. `secretsecretsecret`
  * `ssl_verify` - set to `no` to disable verification of SSL server certificates (enabled by default)
 
 Direct mode:

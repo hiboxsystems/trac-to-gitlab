@@ -23,7 +23,7 @@ class Connection(object):
     def __init__(self, db_name, db_user, db_password, db_path, uploads_path, project_name):
         """
         """
-        self.db = PostgresqlDatabase(db_name, user=db_user, host=db_path)
+        self.db = PostgresqlDatabase(db_name, user=db_user, password=db_password, host=db_path)
         database_proxy.initialize(self.db)
         self.uploads_path = uploads_path
         self.project_name = project_name
