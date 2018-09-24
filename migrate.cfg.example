@@ -14,6 +14,20 @@ usernames = {
     'trac2': 'git2'
     }
 
+# Example value, adjust to your LDAP setup
+ldap_uid_pattern = 'uid=%s,ou=people,dc=your,dc=company,dc=tld'
+
+# Should be an existing group in your GitLab configuration
+default_group = acmeinc
+
+# Set to true if you want all users to be recreated on each run.
+delete_users = false
+
+# Set this to true if you want the create-missing-users.py script to remove
+# all users (essentially recreating the whole user database). This can be
+# useful while working on the users.py configuration.
+ldap_users = False
+
 # Fallback user to use if not present in mapping
 default_user: bot
 

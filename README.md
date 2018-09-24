@@ -30,10 +30,12 @@ This script takes care of the last two bullet points and provides help for the t
 
   1. Install dependencies: `pip install -r requirements.txt`
   1. `cp migrate.cfg.example migrate.cfg`
-  2. Edit `migrate.cfg`, tweaking the values to your needs.
-  3. Run `./collect-users.py` to extract the user names from Trac
-  4. Update `migrate.cfg` and create the users in GitLab
-  5. Run (`./migrate.py`). Make sure you test it on a test project prior, if you run it twice against the same project you will get duplicated issues unless you're using direct access with overwrite set to yes.
+  1. Edit `migrate.cfg`, tweaking the values to your needs.
+  1. Run `./collect-users.py` to extract the user names from Trac
+  1. Update `migrate.cfg` to map users to email addresses.
+  1. Create `users.py` with your list of users.
+  1. Run `./create-missing-users.py` to create all missing users in GitLab.
+  1. Run (`./migrate.py`). Make sure you test it on a test project prior, if you run it twice against the same project you will get duplicated issues unless you're using direct access with overwrite set to yes.
 
 Issues and milestones are copied to GitLab.
 
@@ -75,6 +77,9 @@ API mode:
  * `url` - e.g. `https://www.exmple.com/gitlab/api/v3`
  * `access_token` - the personal access token of the user creating all the issues. Found on the account page,  e.g. `secretsecretsecret`
  * `ssl_verify` - set to `no` to disable verification of SSL server certificates (enabled by default)
+ * `delete_users` - set to `true` if you want all users to be recreated on each run. (disabled by default)
+ * `ldap_uid_pattern` - used to set the LDAP pattern for the UID field. Used by [create-missing-users.py](create-missing-users.py)
+ * `default_group` - this should be the default GitLab group you want to add users to upon creation.
 
 Direct mode:
 

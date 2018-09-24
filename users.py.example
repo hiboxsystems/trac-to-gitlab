@@ -1,0 +1,30 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
+
+users = [
+    {
+        'email': 'john.doe@acmeinc.com',
+        'username': 'johndoe',
+        'name': 'John Doe',
+        'ssh_keys': [
+            {
+                'title': 'john.doe@acmeinc.com',
+
+                # Overwrite with value from ~/.ssh/id_rsa.pub after generating SSH key.
+                'key': 'ssh-rsa AAAAB3...'
+            }
+        ]
+    },
+    {
+        'email': 'elvis.presley@acmeinc.com',
+        'username': 'elvispresley',
+        'name': 'Elvis Presley',
+
+        # You can set this for users who have left the building. These will
+        # be marked as blocked in GitLab. Useful to be able to retain
+        # history of issues/wiki for people who are no longer working in
+        # the company. Note that the email address for these accounts can
+        # be made-up; it does not need to exist at the time of running the
+        # script.
+        'blocked': True
+    },
+]
