@@ -12,14 +12,14 @@ from playhouse.reflection import *
 
 TEMPLATE = """from peewee import *
 
-database = %s('%s', **%s)
+database_proxy = Proxy()
 
 class UnknownField(object):
     pass
 
 class BaseModel(Model):
     class Meta:
-        database = database
+        database = database_proxy
 """
 
 DATABASE_ALIASES = {
@@ -46,10 +46,7 @@ def make_introspector(database_type, database_name, **kwargs):
 def print_models(introspector, tables=None, preserve_order=False):
     database = introspector.introspect(table_names=tables)
 
-    print_(TEMPLATE % (
-        introspector.get_database_class().__name__,
-        introspector.get_database_name(),
-        repr(introspector.get_database_kwargs())))
+    print_(TEMPLATE)
 
     def _print_table(table, seen, accum=None):
         accum = accum or []
