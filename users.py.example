@@ -5,6 +5,14 @@ users = [
         'email': 'john.doe@acmeinc.com',
         'username': 'johndoe',
         'name': 'John Doe',
+
+        # Optional, provide if you want extra secondary email addresses to be set up for the user.
+        # Useful for git commit-to-username mapping.
+        'extra_emails': [
+            'john@acmeinc.net'
+        ],
+
+        # Optional, provide if you want the SSH key(s) to be set up automatically.
         'ssh_keys': [
             {
                 'title': 'john.doe@acmeinc.com',
