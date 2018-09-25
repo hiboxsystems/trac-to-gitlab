@@ -55,6 +55,7 @@ config.read('migrate.cfg')
 trac_url = config.get('source', 'url')
 dest_project_name = config.get('target', 'project_name')
 uploads_path = config.get('target', 'uploads')
+default_group = config.get('target', 'default_group')
 
 method = config.get('target', 'method')
 
@@ -354,7 +355,10 @@ if __name__ == "__main__":
     if method == 'api':
         dest = Connection(gitlab_url, gitlab_access_token, dest_ssl_verify)
     elif method == 'direct':
-        dest = Connection(db_name, db_user, db_password, db_path, uploads_path, dest_project_name)
+        opts = {
+            'default_ticket_namespace': default_group
+        }
+        dest = Connection(db_name, db_user, db_password, db_path, uploads_path, dest_project_name, opts)
 
     source = xmlrpclib.ServerProxy(trac_url)
     dest_project_id = get_dest_project_id(dest, dest_project_name)

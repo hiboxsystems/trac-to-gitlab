@@ -201,7 +201,7 @@ class Connection(object):
         new_ticket_id  = new_ticket["id"]
 
         # setting closed in create does not work -- limitation in gitlab
-        if new_issue.state == 'closed': self.close_issue(dest_project_id,new_ticket_id)
+        if new_issue.state == 'closed': self.close_issue(dest_project_id, new_ticket_id)
 
         return Issues.create(new_ticket)
 

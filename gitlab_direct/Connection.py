@@ -20,13 +20,17 @@ class Connection(object):
     Connection to the gitlab database
     """
 
-    def __init__(self, db_name, db_user, db_password, db_path, uploads_path, project_name):
+    def __init__(self, db_name, db_user, db_password, db_path, uploads_path, project_name, opts={}):
         """
         """
         self.db = PostgresqlDatabase(db_name, user=db_user, password=db_password, host=db_path)
         database_proxy.initialize(self.db)
         self.uploads_path = uploads_path
         self.project_name = project_name
+
+        default_ticket_namespace = opts.get('default_ticket_namespace')
+        if default_ticket_namespace != None:
+            self.default_ticket_namespace_id = Namespaces.get(Namespaces.name == default_ticket_namespace).id
 
     def clear_issues(self, project_id):
 
@@ -117,7 +121,7 @@ class Connection(object):
                 label = Labels.create(
                     title=title,
                     color='#0000FF',
-                    group=5,
+                    group=self.default_ticket_namespace_id,
                     type='GroupLabel',
                     created_at=new_issue.created_at,
                     update_at=new_issue.created_at
