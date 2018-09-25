@@ -14,7 +14,7 @@ from io import open
 
 # Config Start
 meta_header = True              # whether to include the wiki pages' meta data at the top of the markdown
-markdown_extension = 'markdown' # file extension to use for the generated markdown files
+markdown_extension = 'md' # file extension to use for the generated markdown files
 # Config End
 
 
@@ -57,6 +57,10 @@ def convert(text, base_path, multilines=True):
             line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](/uploads/migrated/\1)', line)
             line = re.sub(r'\'\'\'(.*?)\'\'\'', r'*\1*', line)
             line = re.sub(r'\'\'(.*?)\'\'', r'_\1_', line)
+
+            # Technically, a single space means "blockquote" but we have used it previously to create simple lists in Trac.
+            line = re.sub(r'^ ', r' * ', line)
+
             if line.startswith('||'):
                 if not is_table:
                     sep = re.sub(r'[^|]', r'-', line)

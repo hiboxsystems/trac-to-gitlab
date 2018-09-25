@@ -78,11 +78,16 @@ elif method == 'direct':
     overwrite = config.getboolean('target', 'overwrite')
 
 users_map = ast.literal_eval(config.get('target', 'usernames'))
-default_user = config.get('target', 'default_user')
-must_convert_issues = config.getboolean('issues', 'migrate')
+
+default_user = None
+if config.has_option('target', 'default_user'):
+    default_user = config.get('target', 'default_user')
+
 only_issues = None
 if config.has_option('issues', 'only_issues'):
     only_issues = ast.literal_eval(config.get('issues', 'only_issues'))
+
+must_convert_issues = config.getboolean('issues', 'migrate')
 must_convert_wiki = config.getboolean('wiki', 'migrate')
 
 pattern_changeset = r'(?sm)In \[changeset:"([^"/]+?)(?:/[^"]+)?"\]:\n\{\{\{(\n#![^\n]+)?\n(.*?)\n\}\}\}'
@@ -253,10 +258,14 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             new_issue.updated_at = convert_xmlrpc_datetime(src_ticket[2])
             new_issue.project = dest_project_id
             new_issue.state = new_state
+
             try:
                 new_issue.author = get_cached_user_id(dest, gitlab_user_cache, users_map[src_ticket_data['reporter']])
             except KeyError:
-                new_issue.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
+                if default_user:
+                    new_issue.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
+                else:
+                    raise
             if overwrite:
                 new_issue.iid = src_ticket_id
             else:
@@ -272,7 +281,10 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             try:
                 mapped_user = users_map[src_ticket_data['owner']]
             except KeyError:
-                mapped_user = default_user
+                if default_user:
+                    mapped_user = default_user
+                else:
+                    raise
             assign_query = IssueAssignees.insert(
                 issue=new_ticket.id,
                 user=get_cached_user_id(dest, gitlab_user_cache, mapped_user)
@@ -281,6 +293,7 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 
         changelog = source.ticket.changeLog(src_ticket_id)
         is_attachment = False
+
         for change in changelog:
             change_type = change[2]
             if change_type == "attachment":
@@ -292,13 +305,18 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
                     note=trac2down.convert(fix_wiki_syntax(change[4]), '/issues/', False)
                 )
                 binary_attachment = None
+
                 if method == 'direct':
                     note.created_at = convert_xmlrpc_datetime(change[0])
                     note.updated_at = convert_xmlrpc_datetime(change[0])
                     try:
-                        note.author = get_cached_user_id(dest, gitlab_user_cache, users_map[change[1]])
+                        user = users_map[change[1]]
+                        note.author = get_cached_user_id(dest, gitlab_user_cache, user)
                     except KeyError:
-                        note.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
+                        if default_user:
+                            note.author = get_cached_user_id(dest, gitlab_user_cache, default_user)
+                        else:
+                            raise
                     if is_attachment:
                         note.attachment = attachment[4]
                         print("migrating attachment for ticket id %s: %s" % (src_ticket_id, note.attachment))

@@ -28,7 +28,8 @@ delete_users = false
 # useful while working on the users.py configuration.
 ldap_users = False
 
-# Fallback user to use if not present in mapping
+# Fallback user to use if not present in mapping. If not present, the
+# script will raise exceptions for missing user accounts.
 default_user: bot
 
 # project's path
