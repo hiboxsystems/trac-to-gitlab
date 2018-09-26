@@ -78,6 +78,7 @@ elif method == 'direct':
     overwrite = config.getboolean('target', 'overwrite')
 
 users_map = ast.literal_eval(config.get('target', 'usernames'))
+label_colors = ast.literal_eval(config.get('target', 'label_colors'))
 
 default_user = None
 if config.has_option('target', 'default_user'):
@@ -390,7 +391,8 @@ if __name__ == "__main__":
         dest = Connection(gitlab_url, gitlab_access_token, dest_ssl_verify)
     elif method == 'direct':
         opts = {
-            'default_ticket_namespace': default_group
+            'default_ticket_namespace': default_group,
+            'label_colors': label_colors
         }
         dest = Connection(db_name, db_user, db_password, db_path, uploads_path, dest_project_name, opts)
 

@@ -14,6 +14,12 @@ usernames = {
     'trac2': 'git2'
     }
 
+# Used to set the colors for labels as they are created in the GitLab database.
+label_colors = {
+        'some_label': '#8080FF',
+        'invalid': '#FF0000'
+    }
+
 # Example value, adjust to your LDAP setup
 ldap_uid_pattern = 'uid=%s,ou=people,dc=your,dc=company,dc=tld'
 

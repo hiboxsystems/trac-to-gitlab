@@ -78,6 +78,7 @@ class Connection(object):
             # Is automatically replaced on next logon.
             'password': 'will-be-replaced'
         })
+
         result = self.post_json('/users', modified_user)
         user_id = result['id']
 

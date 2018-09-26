@@ -32,8 +32,9 @@ class Connection(object):
         if default_ticket_namespace != None:
             self.default_ticket_namespace_id = Namespaces.get(Namespaces.name == default_ticket_namespace).id
 
-    def clear_issues(self, project_id):
+        self.label_colors = opts.get('label_colors', {})
 
+    def clear_issues(self, project_id):
         # Delete all custom issue boards.
         print("removing issue boards")
         for list in Lists.select():
@@ -43,9 +44,7 @@ class Connection(object):
         print("removing labels")
         for label in Labels.select():
             LabelLinks.delete().where( LabelLinks.label == label.id ).execute()
-            ## You probably do not want to delete the labels themselves, otherwise you'd need to
-            ## set their colour every time when you re-run the migration.
-            #label.delete_instance()
+            label.delete_instance()
 
         # Delete issues and everything that goes with them...
         print("removing issues")
@@ -121,7 +120,7 @@ class Connection(object):
             except:
                 label = Labels.create(
                     title=title,
-                    color='#0000FF',
+                    color=self.label_colors.get(title, '#0000FF'),
                     group=self.default_ticket_namespace_id,
                     type='GroupLabel',
                     created_at=new_issue.created_at,
