@@ -58,9 +58,6 @@ def convert(text, base_path, multilines=True):
             line = re.sub(r'\'\'\'(.*?)\'\'\'', r'*\1*', line)
             line = re.sub(r'\'\'(.*?)\'\'', r'_\1_', line)
 
-            # Technically, a single space means "blockquote" but we have used it previously to create simple lists in Trac.
-            line = re.sub(r'^ ', r' * ', line)
-
             # Line endings in Wiki format are to be preserved in the GitLab format.
             line = re.sub(r'$', r'  ', line)
             if line.startswith('||'):
