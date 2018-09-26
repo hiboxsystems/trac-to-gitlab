@@ -91,6 +91,10 @@ if config.has_option('issues', 'only_issues'):
 must_convert_issues = config.getboolean('issues', 'migrate')
 must_convert_wiki = config.getboolean('wiki', 'migrate')
 
+delete_existing_issues = True
+if config.has_option('issues', 'delete_existing_issues'):
+    delete_existing_issues = config.getboolean('issues', 'delete_existing_issues')
+
 pattern_changeset = r'(?sm)In \[changeset:"([^"/]+?)(?:/[^"]+)?"\]:\n\{\{\{(\n#![^\n]+)?\n(.*?)\n\}\}\}'
 matcher_changeset = re.compile(pattern_changeset)
 
@@ -126,8 +130,10 @@ def get_dest_milestone_id(dest, dest_project_id, milestone_name):
 
 
 def convert_issues(source, dest, dest_project_id, only_issues=None):
+    if only_issues is None: only_issues = []
+
     if overwrite and method == 'direct':
-        dest.clear_issues(dest_project_id)
+        dest.clear_issues(dest_project_id, only_issues)
 
     milestone_map_id = {}
     for milestone_name in source.ticket.milestone.getAll():

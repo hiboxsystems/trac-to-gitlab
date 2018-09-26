@@ -34,7 +34,22 @@ class Connection(object):
 
         self.label_colors = opts.get('label_colors', {})
 
-    def clear_issues(self, project_id):
+    def clear_issues(self, project_id, issue_ids):
+        if issue_ids:
+            # If we are passing a list of specific issues, we ONLY clear these issues (to avoid having to
+            # reimport all data over and over again when working on improving the quality of a particular issue)
+            print("removing specific issues")
+
+            for issue in Issues.select().where(Issues.project == project_id and Issues.iid << issue_ids):
+                for note in Notes.select().where( (Notes.project == project_id) & (Notes.noteable_type == 'Issue') & (Notes.noteable == issue.id)):
+                    Events.delete().where( (Events.project == project_id) & (Events.target_type == 'Note' ) & (Events.target == note.id) ).execute()
+                    note.delete_instance()
+
+                Events.delete().where( (Events.project == project_id) & (Events.target_type == 'Issue' ) & (Events.target == issue.id) ).execute()
+                issue.delete_instance()
+
+            return
+
         # Delete all custom issue boards.
         print("removing issue boards")
         for list in Lists.select():
