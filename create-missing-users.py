@@ -63,6 +63,10 @@ if __name__ == "__main__":
                 print 'Deleting user %s' % user['username']
                 dest.delete_user(gitlab_user)
 
+        # Workaround for https://gitlab.com/gitlab-org/gitlab-ce/issues/51736
+        import time
+        time.sleep(5)
+
     # Second pass: create non-existing users
     for user in users:
         gitlab_user = dest.get_user_id(user['username'])
