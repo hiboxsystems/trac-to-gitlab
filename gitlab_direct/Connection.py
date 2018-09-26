@@ -49,14 +49,15 @@ class Connection(object):
 
         # Delete issues and everything that goes with them...
         print("removing issues")
+        directory = os.path.join(self.uploads_path, self.project_name, 'note/attachment')
+
+        try:
+            shutil.rmtree(directory)
+        except:
+            pass
+
         for issue in Issues.select().where(Issues.project == project_id):
             for note in Notes.select().where( (Notes.project == project_id) & (Notes.noteable_type == 'Issue') & (Notes.noteable == issue.id)):
-                if note.attachment != None:
-                    directory = os.path.join(self.uploads_path, 'note/attachment/%s' % note.id)
-                    try:
-                        shutil.rmtree(directory)
-                    except:
-                        pass
                 Events.delete().where( (Events.project == project_id) & (Events.target_type == 'Note' ) & (Events.target == note.id) ).execute()
                 note.delete_instance()
 
@@ -150,10 +151,12 @@ class Connection(object):
         note.save()
 
         if binary_attachment:
-            directory = os.path.join(self.uploads_path, 'note/attachment/%s' % note.id)
+            path = os.path.join(self.uploads_path, self.project_name, note.attachment)
+            directory = os.path.dirname(path)
+
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            path = os.path.join(directory, note.attachment)
+
             f = open(path, "wb")
             f.write(binary_attachment)
             f.close()

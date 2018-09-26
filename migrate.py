@@ -157,6 +157,8 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         for ticket in source.ticket.query("max=0&order=id"):
             get_all_tickets.ticket.get(ticket)
 
+    image_regexp = re.compile(r'\.(jpg|jpeg|png|gif)$')
+
     for src_ticket in get_all_tickets():
         src_ticket_id = src_ticket[0]
         if only_issues and src_ticket_id not in only_issues:
@@ -295,22 +297,24 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         is_attachment = False
 
         for change in changelog:
-            change_type = change[2]
+            (change_datetime, change_user, change_type, _, change_text, _) = change
+
             if change_type == "attachment":
                 # The attachment will be described in the next change!
                 is_attachment = True
-                attachment = change
-            if change_type == "comment" and (change[4] != '' or is_attachment):
+                attachment_file_name = change_text
+
+            if change_type == "comment" and (change_text != '' or is_attachment):
                 note = Notes(
-                    note=trac2down.convert(fix_wiki_syntax(change[4]), '/issues/', False)
+                    note=trac2down.convert(fix_wiki_syntax(change_text), '/issues/', False)
                 )
                 binary_attachment = None
 
                 if method == 'direct':
-                    note.created_at = convert_xmlrpc_datetime(change[0])
-                    note.updated_at = convert_xmlrpc_datetime(change[0])
+                    note.created_at = convert_xmlrpc_datetime(change_datetime)
+                    note.updated_at = convert_xmlrpc_datetime(change_datetime)
                     try:
-                        user = users_map[change[1]]
+                        user = users_map[change_user]
                         note.author = get_cached_user_id(dest, gitlab_user_cache, user)
                     except KeyError:
                         if default_user:
@@ -318,11 +322,23 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
                         else:
                             raise
                     if is_attachment:
-                        note.attachment = attachment[4]
-                        print("migrating attachment for ticket id %s: %s" % (src_ticket_id, note.attachment))
+                        # Intermediate save needed to make note.id be populated with the real ID of the record.
+                        note.save()
+
+                        # FIXME: Would like to put these in deeply nested folder structure instead of dashes, but
+                        # the GitLab uploads route only supports a single subfolder below uploads:
+                        # https://github.com/gitlabhq/gitlabhq/blob/master/config/routes/uploads.rb#L22-L25
+                        note.attachment = 'note-attachment-%d-%d/%s' % (note.id / 100, note.id, attachment_file_name)
+                        image_prefix = ''
+                        if image_regexp.search(attachment_file_name):
+                            image_prefix = '!'
+
+                        note.note = '%s[%s](/uploads/%s)' % (image_prefix, note.note, note.attachment)
+
+                        print("migrating attachment for ticket id %s: %s" % (src_ticket_id, attachment_file_name))
                         binary_attachment = source.ticket.getAttachment(src_ticket_id,
-                                                                        attachment[4].encode('utf8')).data
-                        attachment = None
+                                                                        attachment_file_name.encode('utf8')).data
+
                 dest.comment_issue(dest_project_id, new_ticket, note, binary_attachment)
                 is_attachment = False
 
