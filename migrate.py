@@ -78,7 +78,7 @@ elif method == 'direct':
     overwrite = config.getboolean('target', 'overwrite')
 
 users_map = ast.literal_eval(config.get('target', 'usernames'))
-label_colors = ast.literal_eval(config.get('target', 'label_colors'))
+label_colors = ast.literal_eval(config.get('issues', 'label_colors'))
 
 default_user = None
 if config.has_option('target', 'default_user'):
@@ -87,6 +87,10 @@ if config.has_option('target', 'default_user'):
 only_issues = None
 if config.has_option('issues', 'only_issues'):
     only_issues = ast.literal_eval(config.get('issues', 'only_issues'))
+
+label_prefix_translation_map = {}
+if config.has_option('issues', 'label_prefix_translation_map'):
+    label_prefix_translation_map = ast.literal_eval(config.get('issues', 'label_prefix_translation_map'))
 
 must_convert_issues = config.getboolean('issues', 'migrate')
 must_convert_wiki = config.getboolean('wiki', 'migrate')
@@ -165,6 +169,7 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
             get_all_tickets.ticket.get(ticket)
 
     image_regexp = re.compile(r'\.(jpg|jpeg|png|gif)$')
+    title_label_regexp = re.compile(r'(\[.+?\]|.+?:)')
 
     for src_ticket in get_all_tickets():
         src_ticket_id = src_ticket[0]
@@ -180,13 +185,13 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         src_ticket_component = src_ticket_data['component']
         src_ticket_version = src_ticket_data['version']
 
-        new_labels = []
+        new_labels = set()
         if src_ticket_priority == 'high':
-            new_labels.append('high priority')
+            new_labels.add('high priority')
         elif src_ticket_priority == 'medium':
             pass
         elif src_ticket_priority == 'low':
-            new_labels.append('low priority')
+            new_labels.add('low priority')
 
         if src_ticket_resolution == '':
             # active ticket
@@ -194,17 +199,17 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         elif src_ticket_resolution == 'fixed':
             pass
         elif src_ticket_resolution == 'invalid':
-            new_labels.append('invalid')
+            new_labels.add('invalid')
         elif src_ticket_resolution == 'wontfix':
-            new_labels.append("won't fix")
+            new_labels.add("won't fix")
         elif src_ticket_resolution == 'duplicate':
-            new_labels.append('duplicate')
+            new_labels.add('duplicate')
         elif src_ticket_resolution == 'worksforme':
-            new_labels.append('works for me')
+            new_labels.add('works for me')
 
         if src_ticket_component != '':
             for component in src_ticket_component.split(','):
-                new_labels.append(component.strip())
+                new_labels.add(component.strip())
 
         new_state = 'opened'
         if src_ticket_status == 'new':
@@ -216,17 +221,33 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         elif src_ticket_status == 'closed':
             new_state = 'closed'
         elif src_ticket_status == 'accepted':
-            new_labels.append(src_ticket_status)
+            new_labels.add(src_ticket_status)
         elif src_ticket_status == 'reviewing' or src_ticket_status == 'testing':
-            new_labels.append(src_ticket_status)
+            new_labels.add(src_ticket_status)
         else:
             print("!!! unknown ticket status: %s" % src_ticket_status)
+
+        sanitized_summary = src_ticket_data['summary']
+        title_result = title_label_regexp.search(sanitized_summary)
+        if title_result:
+            prefix = title_result.group(1).lower()
+
+            # Awkward way, but prefix.translate() works differently on str and unicode objects so
+            # this is good enough for now.
+            prefix = prefix.replace('[', '').replace(']', '').replace(':', '')
+            prefix = label_prefix_translation_map.get(prefix, None)
+
+            # Only prefixes specifically included in the whitelist get replaced.
+            if prefix != None:
+                new_labels.add(prefix)
+
+                sanitized_summary = sanitized_summary[title_result.end():].strip()
 
         print("migrated ticket %s with labels %s" % (src_ticket_id, new_labels))
 
         # Minimal parameters
         new_issue = Issues(
-            title=src_ticket_data['summary'],
+            title=sanitized_summary,
             description=trac2down.convert(fix_wiki_syntax(src_ticket_data['description']), '/issues/', False),
             state=new_state,
             labels=",".join(new_labels)
