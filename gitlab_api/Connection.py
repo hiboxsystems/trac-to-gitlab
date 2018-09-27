@@ -130,6 +130,13 @@ class Connection(object):
             if matching_user != None:
                 self.users.remove(matching_user)
 
+    def create_fork(self, user_name, project_name):
+        fork_json_object = {
+            'namespace': user_name
+        }
+        encoded_project_name = project_name.replace('/', '%2F')
+        self.post_json("/projects/:id/fork", fork_json_object, id=encoded_project_name)
+
     def project_by_name(self, project_name):
         projects = self.get("/projects")
         for project in projects:

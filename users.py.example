@@ -36,3 +36,8 @@ users = [
         'blocked': True
     },
 ]
+
+# Add to this list all users who should receive an automatic fork of the main project.
+fork_users = [
+    'johndoe'
+]

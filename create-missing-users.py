@@ -30,8 +30,9 @@ config.read('migrate.cfg')
 trac_url = config.get('source', 'url')
 ldap_uid_pattern = config.get('target', 'ldap_uid_pattern')
 default_group = config.get('target', 'default_group')
+project_name = config.get('target', 'project_name')
 
-# Can be set to true while developing the script.
+# Can be set to true while developing the script/working on users list.
 try:
     delete_users = config.get('target', 'delete_users')
 except ConfigParser.NoOptionError:
@@ -45,7 +46,7 @@ gitlab_url = config.get('target', 'url')
 gitlab_access_token = config.get('target', 'access_token')
 dest_ssl_verify = config.getboolean('target', 'ssl_verify')
 
-from users import users
+from users import users, fork_users
 
 if __name__ == "__main__":
     opts = {
@@ -76,3 +77,7 @@ if __name__ == "__main__":
             dest.create_user(user)
 
     source = xmlrpclib.ServerProxy(trac_url, encoding = 'UTF-8')
+
+    # Create forks of repositories
+    for fork_user in fork_users:
+        dest.create_fork(fork_user, project_name)

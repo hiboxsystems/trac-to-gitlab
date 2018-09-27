@@ -2,10 +2,12 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
 
 '''
-Copyright © 2013
+Copyright © 2013, 2018
     Eric van der Vlist <vdv@dyomedea.com>
     Jens Neuhalfen <http://www.neuhalfen.name/>
-See license information at the bottom of this file
+    Hibox Systems Oy Ab <http://www.hibox.tv>
+
+Use freely under the term of the GPLv3.
 '''
 
 import re
@@ -21,7 +23,8 @@ import sys
 What
 =====
 
- This script migrates issues from trac to gitlab.
+ This script migrates Trac tickets to GitLab issues, and Trac wiki pages to
+ GitLab wiki pages.
 
 License
 ========
@@ -420,20 +423,3 @@ if __name__ == "__main__":
 
     if must_convert_wiki:
         convert_wiki(source, dest)
-
-'''
-This file is part of <https://gitlab.dyomedea.com/vdv/trac-to-gitlab>.
-
-This software is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This software is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this library. If not, see <http://www.gnu.org/licenses/>.
-'''
