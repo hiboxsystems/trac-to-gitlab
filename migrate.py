@@ -245,6 +245,8 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         else:
             print("!!! unknown ticket status: %s" % src_ticket_status)
 
+        new_labels.add(src_ticket_data['type'])
+
         sanitized_summary = src_ticket_data['summary']
         title_result = title_label_regexp.search(sanitized_summary)
         if title_result:
