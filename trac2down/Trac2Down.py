@@ -20,7 +20,7 @@ markdown_extension = 'md' # file extension to use for the generated markdown fil
 # Config End
 
 
-def convert(text, base_path, multilines=True):
+def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
     text = re.sub('\r\n', '\n', text)
     text = re.sub(r'{{{(.*?)}}}', r'`\1`', text)
     text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n(  )?}}}', r'```\n\2\n```', text)
@@ -61,8 +61,12 @@ def convert(text, base_path, multilines=True):
             line = re.sub(r'source:([\S]+)', r'[\1](%s/\1)' % os.path.relpath('/tree/master/', base_path), line)
             line = re.sub(r'\!(([A-Z][a-z0-9]+){2,})', r'\1', line)
             line = re.sub(r'\[\[Image\(source:([^(]+)\)\]\]', r'![](%s/\1)' % os.path.relpath('/tree/master/', base_path), line)
-            line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](/uploads/migrated/\2)', line)
+
+            if wiki_upload_prefix:
+                line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](%s/\2)' % wiki_upload_prefix, line)
+
             line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](/uploads/migrated/\1)', line)
+
             line = re.sub(r"'''(.*?)'''", r'**\1**', line)
             line = re.sub(r'\'\'(.*?)\'\'', r'_\1_', line)
 

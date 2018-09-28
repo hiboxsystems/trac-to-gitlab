@@ -187,8 +187,9 @@ class Connection(object):
         )
         event.save()
 
-    def save_wiki_attachment(self, path, binary):
-        full_path = os.path.join(self.uploads_path, self.project_name, 'migrated', path)
+    def save_wiki_attachment(self, directory, file_name, binary):
+        full_path = os.path.join(directory, file_name)
+
         if os.path.isfile(full_path):
             hasher = hashlib.sha256(binary)
             our_digest = hasher.hexdigest()
@@ -201,7 +202,6 @@ class Connection(object):
             if our_digest != existing_digest:
                 raise Exception("file %s already exists, and it's checksum %s doesn't match another file with the same name - %s" % (full_path, existing_digest, our_digest))
 
-        directory = os.path.dirname(full_path)
         if not os.path.exists(directory):
             os.makedirs(directory)
         f = open(full_path, "wb")

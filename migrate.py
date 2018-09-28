@@ -64,6 +64,8 @@ default_group = config.get('target', 'default_group')
 method = config.get('target', 'method')
 
 if method == 'api':
+    # TODO: consider dropping this, since we never test it and it doesn't
+    # support all functionality.
     from gitlab_api import Connection, Issues, IssueAssignees, Notes, Milestones
 
     print("importing api")
@@ -107,7 +109,7 @@ parser.add_argument('--ignore-wiki-attachments',
                     help="ignore wiki attached files (default: false)",
                     action="store_true")
 parser.add_argument("--wiki-page",
-                    help="migrate a specific wiki page instead of the whole wiki")
+                    help="migrate a specific wiki page instead of the whole wiki. Implies --wiki.")
 args = parser.parse_args()
 
 must_convert_issues = False
@@ -125,6 +127,7 @@ if args.ignore_wiki_attachments:
 wiki_override_page = None
 if args.wiki_page:
     wiki_override_page = args.wiki_page
+    must_convert_wiki = True
 
 delete_existing_issues = True
 if config.has_option('issues', 'delete_existing_issues'):
@@ -402,35 +405,44 @@ def convert_wiki(source, dest):
     else:
         pages = source.wiki.getAllPages()
 
+    i = 0
     for name in pages:
+        i += 1
         info = source.wiki.getPageInfo(name)
+        if info == 0:
+            raise Exception("No page named %s could be found" % name)
 
         if info['author'] in exclude_authors:
             continue
 
         page = source.wiki.getPage(name)
-        print("Page %s:%s" % (name, info))
+        print("[%d/%d] Page %s:%s" % (i, len(pages), name, info))
         if name == 'WikiStart':
             name = 'home'
-        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name))
+        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix='uploads/migrated')
 
         if method == 'direct' and not ignore_wiki_attachments:
+            sanitized_name = name.replace('/', '-').lower()
+
             files_not_linked_to = []
             for attachment_filename in source.wiki.listAttachments(name):
-                print(attachment_filename)
+                print('  ' + attachment_filename)
                 binary_attachment = source.wiki.getAttachment(attachment_filename).data
                 attachment_name = attachment_filename.split('/')[-1]
-                dest.save_wiki_attachment(attachment_name, binary_attachment)
-                converted = converted.replace(r'migrated/%s)' % attachment_filename,
-                                                r'migrated/%s)' % attachment_name)
+                attachment_directory = os.path.join(target_directory, 'uploads', sanitized_name)
+
+                dest.save_wiki_attachment(attachment_directory, attachment_name, binary_attachment)
+                converted = converted.replace(r'%s/%s)' % (sanitized_name, attachment_filename),
+                                                r'%s/%s)' % (sanitized_name, attachment_name))
                 if '%s)' % attachment_name not in converted:
                     files_not_linked_to.append(attachment_name)
 
             if len(files_not_linked_to) > 0:
+                print '  %d non-linked attachments detected, manually adding to generated Markdown' % len(files_not_linked_to)
                 converted += '\n\n'
                 converted += '##### Attached files:\n'
-                for f in files_not_linked_to:
-                    converted += '- [%s](/uploads/migrated/%s)\n' % (f, f)
+                for file_name in files_not_linked_to:
+                    converted += '- [%s](uploads/%s/%s)\n' % (file_name, sanitized_name, file_name)
 
         trac2down.save_file(converted, name, info['version'], info['lastModified'], info['author'], target_directory)
 
