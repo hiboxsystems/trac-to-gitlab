@@ -1,11 +1,12 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
 '''
-Copyright © 2013 - 2017
+Copyright © 2013 - 2018
     Eric van der Vlist <vdv@dyomedea.com>
     Jens Neuhalfen <http://www.neuhalfen.name/>
-See license information at the bottom of this file
-'''
+    Hibox Systems Oy Ab <http://www.hibox.tv>
 
+Use freely under the term of the GPLv3.
+'''
 
 from peewee import PostgresqlDatabase
 from .model import *
@@ -13,7 +14,7 @@ import os
 import shutil
 from datetime import datetime
 from io import open
-
+import hashlib
 
 class Connection(object):
     """
@@ -189,28 +190,20 @@ class Connection(object):
     def save_wiki_attachment(self, path, binary):
         full_path = os.path.join(self.uploads_path, self.project_name, 'migrated', path)
         if os.path.isfile(full_path):
-            raise Exception("file already exists: %s" % full_path)
+            hasher = hashlib.sha256(binary)
+            our_digest = hasher.hexdigest()
+
+            f = open(full_path, "rb")
+            hasher = hashlib.sha256(f.read())
+            existing_digest = hasher.hexdigest()
+            f.close()
+
+            if our_digest != existing_digest:
+                raise Exception("file %s already exists, and it's checksum %s doesn't match another file with the same name - %s" % (full_path, existing_digest, our_digest))
+
         directory = os.path.dirname(full_path)
         if not os.path.exists(directory):
             os.makedirs(directory)
         f = open(full_path, "wb")
         f.write(binary)
         f.close()
-
-
-'''
-This file is part of <https://gitlab.dyomedea.com/vdv/trac-to-gitlab>.
-
-This software is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This software is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this library. If not, see <http://www.gnu.org/licenses/>.
-'''
