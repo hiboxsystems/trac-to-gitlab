@@ -106,6 +106,8 @@ parser.add_argument('--wiki',
 parser.add_argument('--ignore-wiki-attachments',
                     help="ignore wiki attached files (default: false)",
                     action="store_true")
+parser.add_argument("--wiki-page",
+                    help="migrate a specific wiki page instead of the whole wiki")
 args = parser.parse_args()
 
 must_convert_issues = False
@@ -119,6 +121,10 @@ if args.wiki:
 ignore_wiki_attachments = False
 if args.ignore_wiki_attachments:
     ignore_wiki_attachments = True
+
+wiki_override_page = None
+if args.wiki_page:
+    wiki_override_page = args.wiki_page
 
 delete_existing_issues = True
 if config.has_option('issues', 'delete_existing_issues'):
@@ -390,8 +396,13 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 def convert_wiki(source, dest):
     exclude_authors = [a.strip() for a in config.get('wiki', 'exclude_authors').split(',')]
     target_directory = config.get('wiki', 'target-directory')
-    server = xmlrpclib.MultiCall(source)
-    for name in source.wiki.getAllPages():
+
+    if wiki_override_page:
+        pages = [wiki_override_page]
+    else:
+        pages = source.wiki.getAllPages()
+
+    for name in pages:
         info = source.wiki.getPageInfo(name)
 
         if info['author'] in exclude_authors:

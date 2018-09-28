@@ -1,8 +1,10 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
 '''
-Copyright © 2013
+Copyright © 2013, 2018
     Eric van der Vlist <vdv@dyomedea.com>
     Shigeru KANEMOTO <support@switch-science.com>
+    Hibox Systems Oy Ab <http://www.hibox.tv>
+
 See license information at the bottom of this file
 '''
 
@@ -13,7 +15,7 @@ import os
 from io import open
 
 # Config Start
-meta_header = True              # whether to include the wiki pages' meta data at the top of the markdown
+meta_header = False              # whether to include the wiki pages' meta data at the top of the markdown
 markdown_extension = 'md' # file extension to use for the generated markdown files
 # Config End
 
@@ -21,11 +23,13 @@ markdown_extension = 'md' # file extension to use for the generated markdown fil
 def convert(text, base_path, multilines=True):
     text = re.sub('\r\n', '\n', text)
     text = re.sub(r'{{{(.*?)}}}', r'`\1`', text)
-    text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n}}}', r'```\n\2\n```', text)
+    text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n(  )?}}}', r'```\n\2\n```', text)
 
     text = text.replace('[[TOC]]', '')
     text = text.replace('[[BR]]', '\n')
     text = text.replace('[[br]]', '\n')
+
+    text = re.sub(r'\[\[PageOutline.+?\]\]', '\n[[_TOC_]]', text)
 
     if multilines:
         text = re.sub(r'^\S[^\n]+([^=-_|])\n([^\s`*0-9#=->-_|])', r'\1 \2', text)
@@ -41,11 +45,15 @@ def convert(text, base_path, multilines=True):
     text = re.sub(r'^     * ', r'**', text)
     text = re.sub(r'^ * ', r'*', text)
     text = re.sub(r'^ \d+. ', r'1.', text)
+    text = re.sub(r'\^(.+)\^', r'<sup>\1</sup>', text)
+    text = re.sub(r',,(.+),,', r'<sub>\1</sub>', text)
 
     a = []
     is_table = False
     for line in text.split('\n'):
-        if not line.startswith('    '):
+        is_preformatted = re.match(r'    (-|\*)', line)
+
+        if not is_preformatted:
             line = re.sub(r'\[(https?://[^\s\[\]]+)\s([^\[\]]+)\]', r'[\2](\1)', line)
             line = re.sub(r'\[wiki:([^\s\[\]]+)\s([^\[\]]+)\]', r'[\2](%s/\1)' % os.path.relpath('/wikis/', base_path), line)
             line = re.sub(r'\[wiki:([^\s\[\]]+)\]', r'[\1](\1)', line)
@@ -55,11 +63,19 @@ def convert(text, base_path, multilines=True):
             line = re.sub(r'\[\[Image\(source:([^(]+)\)\]\]', r'![](%s/\1)' % os.path.relpath('/tree/master/', base_path), line)
             line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](/uploads/migrated/\2)', line)
             line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](/uploads/migrated/\1)', line)
-            line = re.sub(r'\'\'\'(.*?)\'\'\'', r'*\1*', line)
+            line = re.sub(r"'''(.*?)'''", r'**\1**', line)
             line = re.sub(r'\'\'(.*?)\'\'', r'_\1_', line)
 
+            # FIXME: Unsure about this part. Let's disable it and see what
+            # the issues look like without it. Is the issue and wiki formatting
+            # different in Trac?
+            #is_bulletpoint_list_row = re.match(r'\S*(-|\*)', line)
+
+            #if not is_bulletpoint_list_row and len(line) > 0:
             # Line endings in Wiki format are to be preserved in the GitLab format.
-            line = re.sub(r'$', r'  ', line)
+            #line = re.sub(r'$', r'  ', line)
+            line = re.sub(r'\\\\$', r'  ', line)
+
             if line.startswith('||'):
                 if not is_table:
                     sep = re.sub(r'[^|]', r'-', line)
