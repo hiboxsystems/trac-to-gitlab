@@ -72,9 +72,6 @@ uploads: /var/opt/gitlab/gitlab-rails/uploads
 
 [wiki]
 
-# Should we migrate the wiki (default = yes)
-# migrate: yes
-
 # Comma separated list of authors to exclude (default=trac)
 # exclude_authors: trac
 
@@ -83,9 +80,6 @@ target-directory: /tmp/test.wiki/
 
 
 [issues]
-
-# Should we migrate the issues (default = yes)
-# migrate: no
 
 # Used to set the colors for labels as they are created in the GitLab database.
 label_colors = {

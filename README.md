@@ -93,13 +93,14 @@ Direct mode:
 Wiki
 ----
 
- * `migrate` - Should the wiki pages be converted?
  * `target-directory` - Directory in which the wiki pages should be written
 
 Issues
 ------
 
- * `migrate` - Should we migrate issues and milestones?
+ * `label_colors` -- maps particular labels to colors (see `migrate.cfg.example` for example syntax)
+ * `label_prefix_translation_map` -- maps issue prefixes to labels
+ * `only_issues` -- (optional) array that limits the conversion to particular issues. If provided, other existing issues in the database are retained.
 
 Licenses
 ========

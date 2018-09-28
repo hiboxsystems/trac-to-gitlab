@@ -10,6 +10,7 @@ Copyright © 2013, 2018
 Use freely under the term of the GPLv3.
 '''
 
+import argparse
 import re
 import os
 import ConfigParser
@@ -95,8 +96,22 @@ label_prefix_translation_map = {}
 if config.has_option('issues', 'label_prefix_translation_map'):
     label_prefix_translation_map = ast.literal_eval(config.get('issues', 'label_prefix_translation_map'))
 
-must_convert_issues = config.getboolean('issues', 'migrate')
-must_convert_wiki = config.getboolean('wiki', 'migrate')
+parser = argparse.ArgumentParser()
+parser.add_argument('--issues',
+                    help="migrate issues (default: false)",
+                    action="store_true")
+parser.add_argument('--wiki',
+                    help="migrate wiki pages (default: false)",
+                    action="store_true")
+args = parser.parse_args()
+
+must_convert_issues = False
+must_convert_wiki = False
+if args.issues:
+    must_convert_issues = True
+
+if args.wiki:
+    must_convert_wiki = True
 
 delete_existing_issues = True
 if config.has_option('issues', 'delete_existing_issues'):
