@@ -34,12 +34,12 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
     if multilines:
         text = re.sub(r'^\S[^\n]+([^=-_|])\n([^\s`*0-9#=->-_|])', r'\1 \2', text)
 
-    text = re.sub(r'(?m)^======\s+(.*?)\s+======$', r'###### \1', text)
-    text = re.sub(r'(?m)^=====\s+(.*?)\s+=====$', r'##### \1', text)
-    text = re.sub(r'(?m)^====\s+(.*?)\s+====$', r'#### \1', text)
-    text = re.sub(r'(?m)^===\s+(.*?)\s+===$', r'### \1', text)
-    text = re.sub(r'(?m)^==\s+(.*?)\s+==$', r'## \1', text)
-    text = re.sub(r'(?m)^=\s+(.*?)\s+=$', r'# \1', text)
+    text = re.sub(r'(?m)^======\s+(.*?)\s+======[ ]*$', r'###### \1', text)
+    text = re.sub(r'(?m)^=====\s+(.*?)\s+=====[ ]*$', r'##### \1', text)
+    text = re.sub(r'(?m)^====\s+(.*?)\s+====[ ]*$', r'#### \1', text)
+    text = re.sub(r'(?m)^===\s+(.*?)\s+===[ ]*$', r'### \1', text)
+    text = re.sub(r'(?m)^==\s+(.*?)\s+==[ ]*$', r'## \1', text)
+    text = re.sub(r'(?m)^=\s+(.*?)\s+=[ ]*$', r'# \1', text)
     text = re.sub(r'^             * ', r'****', text)
     text = re.sub(r'^         * ', r'***', text)
     text = re.sub(r'^     * ', r'**', text)
@@ -67,8 +67,8 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
 
             line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](/uploads/migrated/\1)', line)
 
-            line = re.sub(r"'''(.*?)'''", r'**\1**', line)
-            line = re.sub(r'\'\'(.*?)\'\'', r'_\1_', line)
+            line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
+            line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
 
             # FIXME: Unsure about this part. Let's disable it and see what
             # the issues look like without it. Is the issue and wiki formatting
