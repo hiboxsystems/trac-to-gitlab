@@ -103,6 +103,9 @@ parser.add_argument('--issues',
 parser.add_argument('--wiki',
                     help="migrate wiki pages (default: false)",
                     action="store_true")
+parser.add_argument('--ignore-wiki-attachments',
+                    help="ignore wiki attached files (default: false)",
+                    action="store_true")
 args = parser.parse_args()
 
 must_convert_issues = False
@@ -112,6 +115,10 @@ if args.issues:
 
 if args.wiki:
     must_convert_wiki = True
+
+ignore_wiki_attachments = False
+if args.ignore_wiki_attachments:
+    ignore_wiki_attachments = True
 
 delete_existing_issues = True
 if config.has_option('issues', 'delete_existing_issues'):
@@ -396,7 +403,7 @@ def convert_wiki(source, dest):
             name = 'home'
         converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name))
 
-        if method == 'direct':
+        if method == 'direct' and not ignore_wiki_attachments:
             files_not_linked_to = []
             for attachment_filename in source.wiki.listAttachments(name):
                 print(attachment_filename)
