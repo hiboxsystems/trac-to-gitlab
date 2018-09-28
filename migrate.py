@@ -369,31 +369,35 @@ def convert_wiki(source, dest):
     server = xmlrpclib.MultiCall(source)
     for name in source.wiki.getAllPages():
         info = source.wiki.getPageInfo(name)
-        if info['author'] not in exclude_authors:
-            page = source.wiki.getPage(name)
-            print("Page %s:%s" % (name, info))
-            if name == 'WikiStart':
-                name = 'home'
-            converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name))
-            if method == 'direct':
-                files_not_linked_to = []
-                for attachment_filename in source.wiki.listAttachments(name):
-                    print(attachment_filename)
-                    binary_attachment = source.wiki.getAttachment(attachment_filename).data
-                    attachment_name = attachment_filename.split('/')[-1]
-                    dest.save_wiki_attachment(attachment_name, binary_attachment)
-                    converted = converted.replace(r'migrated/%s)' % attachment_filename,
-                                                  r'migrated/%s)' % attachment_name)
-                    if '%s)' % attachment_name not in converted:
-                        files_not_linked_to.append(attachment_name)
 
-                if len(files_not_linked_to) > 0:
-                    converted += '\n\n'
-                    converted += '##### Attached files:\n'
-                    for f in files_not_linked_to:
-                        converted += '- [%s](/uploads/migrated/%s)\n' % (f, f)
+        if info['author'] in exclude_authors:
+            continue
 
-            trac2down.save_file(converted, name, info['version'], info['lastModified'], info['author'], target_directory)
+        page = source.wiki.getPage(name)
+        print("Page %s:%s" % (name, info))
+        if name == 'WikiStart':
+            name = 'home'
+        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name))
+
+        if method == 'direct':
+            files_not_linked_to = []
+            for attachment_filename in source.wiki.listAttachments(name):
+                print(attachment_filename)
+                binary_attachment = source.wiki.getAttachment(attachment_filename).data
+                attachment_name = attachment_filename.split('/')[-1]
+                dest.save_wiki_attachment(attachment_name, binary_attachment)
+                converted = converted.replace(r'migrated/%s)' % attachment_filename,
+                                                r'migrated/%s)' % attachment_name)
+                if '%s)' % attachment_name not in converted:
+                    files_not_linked_to.append(attachment_name)
+
+            if len(files_not_linked_to) > 0:
+                converted += '\n\n'
+                converted += '##### Attached files:\n'
+                for f in files_not_linked_to:
+                    converted += '- [%s](/uploads/migrated/%s)\n' % (f, f)
+
+        trac2down.save_file(converted, name, info['version'], info['lastModified'], info['author'], target_directory)
 
 
 def get_cached_user_id(dest, gitlab_user_cache, username):
