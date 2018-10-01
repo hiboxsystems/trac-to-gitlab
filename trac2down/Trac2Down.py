@@ -66,7 +66,8 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
                 line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](%s/\2)' % wiki_upload_prefix, line)
                 line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](%s/\1)' % wiki_upload_prefix, line)
             else:
-                raise Exception('[Image(foo)] tag encountered in non-wiki content. This is not supported.')
+                if re.search(r'\[\Image\(.+?\)]', line):
+                    raise Exception('[Image(foo)] tag encountered in non-wiki content. This is not supported.')
 
             line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
             line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
