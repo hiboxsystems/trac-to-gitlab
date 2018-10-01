@@ -102,6 +102,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--issues',
                     help="migrate issues (default: false)",
                     action="store_true")
+parser.add_argument("--only-issue",
+                    help="migrate a specific issue instead of all.")
 parser.add_argument('--wiki',
                     help="migrate wiki pages (default: false)",
                     action="store_true")
@@ -116,6 +118,10 @@ must_convert_issues = False
 must_convert_wiki = False
 if args.issues:
     must_convert_issues = True
+
+if args.only_issue:
+    must_convert_issues = True
+    only_issues = [int(args.only_issue)]
 
 if args.wiki:
     must_convert_wiki = True
