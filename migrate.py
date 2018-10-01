@@ -419,12 +419,13 @@ def convert_wiki(source, dest):
         print("[%d/%d] Page %s:%s" % (i, len(pages), name, info))
         if name == 'WikiStart':
             name = 'home'
-        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix='uploads/migrated')
+
+        sanitized_name = name.replace('/', '-').lower()
+        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix='uploads/%s' % sanitized_name)
 
         if method == 'direct' and not ignore_wiki_attachments:
-            sanitized_name = name.replace('/', '-').lower()
-
             files_not_linked_to = []
+
             for attachment_filename in source.wiki.listAttachments(name):
                 print('  ' + attachment_filename)
                 binary_attachment = source.wiki.getAttachment(attachment_filename).data

@@ -5,7 +5,7 @@ Copyright © 2013, 2018
     Shigeru KANEMOTO <support@switch-science.com>
     Hibox Systems Oy Ab <http://www.hibox.tv>
 
-See license information at the bottom of this file
+Use freely under the term of the GPLv3.
 '''
 
 from __future__ import division
@@ -64,8 +64,9 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
 
             if wiki_upload_prefix:
                 line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](%s/\2)' % wiki_upload_prefix, line)
-
-            line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](/uploads/migrated/\1)', line)
+                line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](%s/\1)' % wiki_upload_prefix, line)
+            else:
+                raise Exception('[Image(foo)] tag encountered in non-wiki content. This is not supported.')
 
             line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
             line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
@@ -85,11 +86,20 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
                     sep = re.sub(r'[^|]', r'-', line)
                     line = line + '\n' + sep
                     is_table = True
+
+                # Sometimes, table cells are separated by |||| instead of || in our wiki content.
+                line = re.sub(r'\|\|\|\|', r'|', line)
                 line = re.sub(r'\|\|', r'|', line)
+
+                # = foo = syntax is used to center table headings in Trac wiki format. The same can be done in GitLab markdown,
+                # but it involves modifying the line afterwards. We KISS and drop the formatting in this case, sacrificing
+                # correctness for keeping the conversion code simpler.
+                line = re.sub(r'=\s+(.*?)\s+=', r'\1', line)
             else:
                 is_table = False
         else:
             is_table = False
+
         a.append(line)
     text = '\n'.join(a)
     return text
@@ -135,20 +145,3 @@ if __name__ == "__main__":
         except ValueError:
             time = datetime.datetime.fromtimestamp(time / 1000000).strftime('%Y/%m/%d %H:%M:%S')
         save_file(text, name, version, time, author, 'wiki/')
-
-'''
-This file is part of <https://gitlab.dyomedea.com/vdv/trac-to-gitlab>.
-
-This software is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This software is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this library. If not, see <http://www.gnu.org/licenses/>.
-'''
