@@ -290,13 +290,17 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         # FIXME: Would like to put these in deeply nested folder structure instead of dashes, but
         # the GitLab uploads route only supports a single subfolder below uploads:
         # https://github.com/gitlabhq/gitlabhq/blob/master/config/routes/uploads.rb#L22-L25
-        issue_attachment_path = os.path.join('note-attachment-%d' % src_ticket_id)
+        issue_attachment_path = os.path.join('issue-attachment-%d' % src_ticket_id)
 
         # Minimal parameters
         new_issue = Issues(
             title=sanitized_summary,
-            description=trac2down.convert(fix_wiki_syntax(src_ticket_data['description']), '/issues/', False,
-                                          issue_upload_prefix=issue_attachment_path),
+            description=trac2down.convert(
+                fix_wiki_syntax(src_ticket_data['description']),
+                '/issues/',
+                False,
+                issue_upload_prefix=issue_attachment_path
+            ),
             state=new_state,
             labels=",".join(new_labels)
         )
@@ -371,7 +375,12 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
 
             if change_type == "comment" and (change_text != '' or is_attachment):
                 note = Notes(
-                    note=trac2down.convert(fix_wiki_syntax(change_text), '/issues/', False)
+                    note=trac2down.convert(
+                        fix_wiki_syntax(change_text),
+                        '/issues/',
+                        False,
+                        issue_upload_prefix=issue_attachment_path
+                    )
                 )
                 binary_attachment = None
 
