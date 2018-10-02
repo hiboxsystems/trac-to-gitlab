@@ -31,9 +31,6 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
 
     text = re.sub(r'\[\[PageOutline.+?\]\]', '\n[[_TOC_]]', text)
 
-    if multilines:
-        text = re.sub(r'^\S[^\n]+([^=-_|])\n([^\s`*0-9#=->-_|])', r'\1 \2', text)
-
     text = re.sub(r'(?m)^======\s+(.*?)\s+======[ ]*$', r'###### \1', text)
     text = re.sub(r'(?m)^=====\s+(.*?)\s+=====[ ]*$', r'##### \1', text)
     text = re.sub(r'(?m)^====\s+(.*?)\s+====[ ]*$', r'#### \1', text)
