@@ -19,8 +19,10 @@ meta_header = False              # whether to include the wiki pages' meta data 
 markdown_extension = 'md' # file extension to use for the generated markdown files
 # Config End
 
+Lu = ''.join(unichr(c) for c in range(0, 0x10000) if unichr(c).isupper())
+Ll = ''.join(unichr(c) for c in range(0, 0x10000) if unichr(c).islower())
 
-def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, multilines=True):
+def convert(text, base_path, wiki_page_names, wiki_upload_prefix=None, issue_upload_prefix=None):
     text = re.sub('\r\n', '\n', text)
     text = re.sub(r'{{{(.*?)}}}', r'`\1`', text)
     text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n(  )?}}}', r'```\n\2\n```', text)
@@ -51,6 +53,21 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
         is_preformatted = re.match(r'    (-|\*)', line)
 
         if not is_preformatted:
+            if not re.match(r'\S*#+', line):
+                # line = re.sub(r"((?:[%(upper)s](?:[%(lower)s])+/?){2,})" % {
+                #         'upper': Lu,
+                #         'lower': Ll
+                #     }, r'[\1](../wikis/\1)', line
+                # )
+
+                # Convert wiki links outside of headers.
+                for page_name in wiki_page_names:
+                    # BAD CODE: overly agressive, converts things that should not necessarily be matched rendering the output very
+                    # crazy.
+                    #
+                    # Start after any non-word char except '/'
+                    line = re.sub(r'!?(?<![\w/])%s' % page_name, '[%s](../wikis/%s)' % (page_name, page_name), line)
+
             line = re.sub(r'\[(https?://[^\s\[\]]+)\s([^\[\]]+)\]', r'[\2](\1)', line)
             line = re.sub(r'\[wiki:([^\s\[\]]+)\s([^\[\]]+)\]', r'[\2](%s/\1)' % os.path.relpath('/wikis/', base_path), line)
             line = re.sub(r'\[wiki:([^\s\[\]]+)\]', r'[\1](\1)', line)

@@ -181,7 +181,7 @@ def get_dest_milestone_id(dest, dest_project_id, milestone_name):
     return dest_milestone_id["id"]
 
 
-def convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=None):
+def convert_issues(source, dest, dest_project_id, convert_milestones, wiki_page_names, only_issues=None):
     if only_issues is None: only_issues = []
 
     if overwrite and method == 'direct':
@@ -193,7 +193,11 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
             milestone = source.ticket.milestone.get(milestone_name)
             print("migrated milestone: %s" % milestone_name)
             new_milestone = Milestones(
-                description=trac2down.convert(fix_wiki_syntax(milestone['description']), '/milestones/', False),
+                description=trac2down.convert(
+                    fix_wiki_syntax(milestone['description']),
+                    '/milestones/',
+                    wiki_page_names
+                ),
                 title=milestone['name'],
                 state='active' if str(milestone['completed']) == '0' else 'closed'
             )
@@ -306,7 +310,7 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
             description=trac2down.convert(
                 fix_wiki_syntax(src_ticket_data['description']),
                 '/issues/',
-                False,
+                wiki_page_names,
                 issue_upload_prefix='/uploads/' + issue_attachment_path
             ),
             state=new_state,
@@ -386,7 +390,7 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
                     note=trac2down.convert(
                         fix_wiki_syntax(change_text),
                         '/issues/',
-                        False,
+                        wiki_page_names,
                         issue_upload_prefix=issue_attachment_path
                     )
                 )
@@ -422,7 +426,19 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
                 is_attachment = False
 
 
-def convert_wiki(source, dest):
+def get_wiki_page_names(source):
+    pages = source.wiki.getAllPages()
+    pages.remove('WikiStart')
+    pages.append('home')
+
+    return pages
+    # Need to sort by length, with longest first. This is necessary since
+    # both GitLab/Migration and GitLab might be valid Wiki pages, and the
+    # former should take precedence. (otherwise, the simplistic wiki
+    # link replacement code will mess out the output)
+    #return sorted(pages, lambda x, y: -1 if len(x) > len(y) else 1)
+
+def convert_wiki(source, dest, wiki_page_names):
     exclude_authors = [a.strip() for a in config.get('wiki', 'exclude_authors').split(',')]
     target_directory = config.get('wiki', 'target-directory')
 
@@ -447,7 +463,12 @@ def convert_wiki(source, dest):
             name = 'home'
 
         sanitized_name = name.replace('/', '-').lower()
-        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix='uploads/%s' % sanitized_name)
+        converted = trac2down.convert(
+            page,
+            os.path.dirname('/wikis/%s' % name),
+            wiki_page_names,
+            wiki_upload_prefix='uploads/%s' % sanitized_name
+        )
 
         if method == 'direct' and not ignore_wiki_attachments:
             files_not_linked_to = []
@@ -496,8 +517,10 @@ if __name__ == "__main__":
     source = xmlrpclib.ServerProxy(trac_url)
     dest_project_id = get_dest_project_id(dest, dest_project_name)
 
+    wiki_page_names = get_wiki_page_names(source)
+
     if must_convert_issues:
-        convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=only_issues)
+        convert_issues(source, dest, dest_project_id, convert_milestones, wiki_page_names, only_issues=only_issues)
 
     if must_convert_wiki:
-        convert_wiki(source, dest)
+        convert_wiki(source, dest, wiki_page_names)
