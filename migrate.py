@@ -99,6 +99,9 @@ if config.has_option('issues', 'label_prefix_translation_map'):
     label_prefix_translation_map = ast.literal_eval(config.get('issues', 'label_prefix_translation_map'))
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--no-convert-milestones',
+                    help="disable conversion of all milestones (enabled by default)",
+                    action="store_true")
 parser.add_argument('--issues',
                     help="migrate issues (default: false)",
                     action="store_true")
@@ -114,6 +117,10 @@ parser.add_argument("--wiki-page",
                     help="migrate a specific wiki page instead of the whole wiki. Implies --wiki.")
 args = parser.parse_args()
 
+convert_milestones = True
+if args.no_convert_milestones:
+    convert_milestones = False
+
 must_convert_issues = False
 must_convert_wiki = False
 if args.issues:
@@ -121,6 +128,7 @@ if args.issues:
 
 if args.only_issue:
     must_convert_issues = True
+    convert_milestones = False
     only_issues = [int(args.only_issue)]
 
 if args.wiki:
@@ -173,27 +181,28 @@ def get_dest_milestone_id(dest, dest_project_id, milestone_name):
     return dest_milestone_id["id"]
 
 
-def convert_issues(source, dest, dest_project_id, only_issues=None):
+def convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=None):
     if only_issues is None: only_issues = []
 
     if overwrite and method == 'direct':
         dest.clear_issues(dest_project_id, only_issues)
 
     milestone_map_id = {}
-    for milestone_name in source.ticket.milestone.getAll():
-        milestone = source.ticket.milestone.get(milestone_name)
-        print("migrated milestone: %s" % milestone_name)
-        new_milestone = Milestones(
-            description=trac2down.convert(fix_wiki_syntax(milestone['description']), '/milestones/', False),
-            title=milestone['name'],
-            state='active' if str(milestone['completed']) == '0' else 'closed'
-        )
-        if method == 'direct':
-            new_milestone.project = dest_project_id
-        if milestone['due']:
-            new_milestone.due_date = convert_xmlrpc_datetime(milestone['due'])
-        new_milestone = dest.create_milestone(dest_project_id, new_milestone)
-        milestone_map_id[milestone_name] = new_milestone.id
+    if convert_milestones:
+        for milestone_name in source.ticket.milestone.getAll():
+            milestone = source.ticket.milestone.get(milestone_name)
+            print("migrated milestone: %s" % milestone_name)
+            new_milestone = Milestones(
+                description=trac2down.convert(fix_wiki_syntax(milestone['description']), '/milestones/', False),
+                title=milestone['name'],
+                state='active' if str(milestone['completed']) == '0' else 'closed'
+            )
+            if method == 'direct':
+                new_milestone.project = dest_project_id
+            if milestone['due']:
+                new_milestone.due_date = convert_xmlrpc_datetime(milestone['due'])
+            new_milestone = dest.create_milestone(dest_project_id, new_milestone)
+            milestone_map_id[milestone_name] = new_milestone.id
 
     get_all_tickets = xmlrpclib.MultiCall(source)
 
@@ -488,7 +497,7 @@ if __name__ == "__main__":
     dest_project_id = get_dest_project_id(dest, dest_project_name)
 
     if must_convert_issues:
-        convert_issues(source, dest, dest_project_id, only_issues=only_issues)
+        convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=only_issues)
 
     if must_convert_wiki:
         convert_wiki(source, dest)
