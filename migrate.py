@@ -292,14 +292,13 @@ def convert_issues(source, dest, dest_project_id, only_issues=None):
         # https://github.com/gitlabhq/gitlabhq/blob/master/config/routes/uploads.rb#L22-L25
         issue_attachment_path = os.path.join('issue-attachment-%d' % src_ticket_id)
 
-        # Minimal parameters
         new_issue = Issues(
             title=sanitized_summary,
             description=trac2down.convert(
                 fix_wiki_syntax(src_ticket_data['description']),
                 '/issues/',
                 False,
-                issue_upload_prefix=issue_attachment_path
+                issue_upload_prefix='/uploads/' + issue_attachment_path
             ),
             state=new_state,
             labels=",".join(new_labels)
