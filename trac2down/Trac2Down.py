@@ -20,7 +20,7 @@ markdown_extension = 'md' # file extension to use for the generated markdown fil
 # Config End
 
 
-def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
+def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, multilines=True):
     text = re.sub('\r\n', '\n', text)
     text = re.sub(r'{{{(.*?)}}}', r'`\1`', text)
     text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n(  )?}}}', r'```\n\2\n```', text)
@@ -65,9 +65,14 @@ def convert(text, base_path, wiki_upload_prefix=None, multilines=True):
             if wiki_upload_prefix:
                 line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](%s/\2)' % wiki_upload_prefix, line)
                 line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](%s/\1)' % wiki_upload_prefix, line)
+            elif issue_upload_prefix:
+                if re.search(r'\[\Image\(wiki:.+?\)]', line):
+                    raise Exception('[Image(wiki:foo)] tag encountered in non-wiki content. This is not supported.')
+
+                line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](%s/\1)' % issue_upload_prefix, line)
             else:
                 if re.search(r'\[\Image\(.+?\)]', line):
-                    raise Exception('[Image(foo)] tag encountered in non-wiki content. This is not supported.')
+                    raise Exception('[Image(foo)] tags are not supported when neither wiki_upload_prefix nor issue_upload_prefix is set')
 
             line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
             line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
