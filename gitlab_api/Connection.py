@@ -47,8 +47,8 @@ class Connection(object):
         self.url = url
         self.access_token = access_token
         self.verify = ssl_verify
-        self.ldap_uid_pattern = opts['ldap_uid_pattern']
-        self.default_group = opts['default_group']
+        self.ldap_uid_pattern = opts.get('ldap_uid_pattern')
+        self.default_group = opts.get('default_group')
 
     def milestone_by_name(self, project_id, milestone_name):
         milestones = self.get("/projects/:project_id/milestones", project_id=project_id)
@@ -130,18 +130,24 @@ class Connection(object):
             if matching_user != None:
                 self.users.remove(matching_user)
 
+    def project_by_name(self, project_name):
+        projects = self.get("/projects")
+        for project in projects:
+            if project['path_with_namespace'] == project_name:
+                return project
+
+    def create_project(self, project):
+        self.post_json('/projects', project)
+
+    def delete_project(self, project_slug):
+        self.delete('/projects/%s' % project_slug)
+
     def create_fork(self, user_name, project_name):
         fork_json_object = {
             'namespace': user_name
         }
         encoded_project_name = project_name.replace('/', '%2F')
         self.post_json("/projects/:id/fork", fork_json_object, id=encoded_project_name)
-
-    def project_by_name(self, project_name):
-        projects = self.get("/projects")
-        for project in projects:
-            if project['path_with_namespace'] == project_name:
-                return project
 
     def delete(self, url_postfix):
         self._delete(url_postfix)
@@ -189,7 +195,6 @@ class Connection(object):
 
     def post_json(self, url_postfix, data={}, **keywords):
         completed_url = self._complete_url(url_postfix, keywords)
-        payload = json.dumps(data)
         r = requests.post(completed_url, data=data, verify=self.verify)
 
         try:
@@ -197,7 +202,17 @@ class Connection(object):
             j = r.json()
             return j
         except:
-            print r.text
+            payload = json.dumps(data, sort_keys=True, indent=4)
+
+            # NB: The printed URL here is likely to include credentials.
+            print "Failed to make request to %s" % completed_url
+            print "Request body follows:"
+            print payload
+            print
+            print "Error response from server:"
+            print json.dumps(json.loads(r.text), sort_keys=True, indent=4)
+            print
+
             raise
 
     def create_issue(self, dest_project_id, new_issue):

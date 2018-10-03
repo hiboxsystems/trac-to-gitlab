@@ -1,0 +1,26 @@
+#
+# Copy to projects.py and adjust as needed.
+#
+
+# Displayed on the edit page for the group in your GitLab installation
+project_group_id = 123
+project_group_name = 'your_group_name'
+
+# Note: dictionary keys here must correspond to fields as given by
+# https://docs.gitlab.com/ee/api/projects.html#create-project
+#
+# URLs are converted to include credentials at the end of this file,
+# to avoid having to repeat it for every project.
+projects = {
+    'foo_project':
+        'https://old.git.server.name/your_group_name/foo_project.git',
+    'bar_project':
+        'https://old.git.server.name/your_group_name/bar_project.git',
+}
+
+for p in projects:
+    import_url = projects[p]
+    projects[p] = import_url.replace(
+        'https://old.git.server.name',
+        'https://user:password@old.git.server.name'
+    )
