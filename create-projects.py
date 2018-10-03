@@ -36,13 +36,25 @@ if __name__ == "__main__":
     dest = Connection(gitlab_url, gitlab_access_token, dest_ssl_verify, opts)
 
     for project_name in projects:
-        import_url = projects[project_name]
-        project = {
-            'import_url': import_url,
-            'name': project_name,
-            'path': project_name,
-            'jobs_enabled': False,
-            'namespace_id': project_group_id
-        }
+        project_or_import_url = projects[project_name]
+
+        if isinstance(project_or_import_url, str):
+            import_url = project_or_import_url
+
+            project = {
+                'import_url': import_url,
+                'name': project_name,
+                'path': project_name,
+                'jobs_enabled': False,
+                'namespace_id': project_group_id
+            }
+        else:
+            project = project_or_import_url
+            project.update({
+                'name': project_name,
+                'path': project_name,
+                'jobs_enabled': False,
+                'namespace_id': project_group_id
+            })
 
         dest.create_project(project)
