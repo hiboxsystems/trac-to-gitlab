@@ -16,6 +16,14 @@ projects = {
         'https://old.git.server.name/your_group_name/foo_project.git',
     'bar_project':
         'https://old.git.server.name/your_group_name/bar_project.git',
+
+    # Can also contain more settings if needed. (maps 1-to-1 to the
+    # GitLab API docs as referred to above.)
+    'baz_project': {
+        'import_url': 'https://old.git.server.name/your_group_name/baz_project.git',
+        'issues_enabled': True,
+        'wiki_enabled': True
+    }
 }
 
 for p in projects:
