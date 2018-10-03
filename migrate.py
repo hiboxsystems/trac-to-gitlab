@@ -453,16 +453,21 @@ def convert_wiki(source, dest):
             files_not_linked_to = []
 
             for attachment_filename in source.wiki.listAttachments(name):
-                print('  ' + attachment_filename)
                 binary_attachment = source.wiki.getAttachment(attachment_filename).data
                 attachment_name = attachment_filename.split('/')[-1]
+                sanitized_attachment_name = attachment_name \
+                    .replace(' ', '_') \
+                    .replace('(', '') \
+                    .replace(')', '')
                 attachment_directory = os.path.join(target_directory, 'uploads', sanitized_name)
 
-                dest.save_wiki_attachment(attachment_directory, attachment_name, binary_attachment)
+                dest.save_wiki_attachment(attachment_directory, sanitized_attachment_name, binary_attachment)
                 converted = converted.replace(r'%s/%s)' % (sanitized_name, attachment_filename),
-                                                r'%s/%s)' % (sanitized_name, attachment_name))
-                if '%s)' % attachment_name not in converted:
-                    files_not_linked_to.append(attachment_name)
+                                                r'%s/%s)' % (sanitized_name, sanitized_attachment_name))
+                if '%s)' % sanitized_attachment_name not in converted:
+                    files_not_linked_to.append(sanitized_attachment_name)
+
+                print('  ' + sanitized_attachment_name)
 
             if len(files_not_linked_to) > 0:
                 print '  %d non-linked attachments detected, manually adding to generated Markdown' % len(files_not_linked_to)
