@@ -37,6 +37,11 @@ users = [
     },
 ]
 
+# The groups mentioned here should exist in your GitLab configuration
+default_groups = [
+    'acmeinc'
+]
+
 # Add to this list all users who should receive an automatic fork of the main project.
 fork_users = [
     'johndoe'

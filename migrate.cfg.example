@@ -17,9 +17,6 @@ usernames = {
 # Example value, adjust to your LDAP setup
 ldap_uid_pattern = 'uid=%s,ou=people,dc=your,dc=company,dc=tld'
 
-# Should be an existing group in your GitLab configuration
-default_group = acmeinc
-
 # Set to true if you want all users to be recreated on each run.
 delete_users = false
 

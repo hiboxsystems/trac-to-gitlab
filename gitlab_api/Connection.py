@@ -48,7 +48,7 @@ class Connection(object):
         self.access_token = access_token
         self.verify = ssl_verify
         self.ldap_uid_pattern = opts.get('ldap_uid_pattern')
-        self.default_group = opts.get('default_group')
+        self.default_groups = opts.get('default_groups')
 
     def milestone_by_name(self, project_id, milestone_name):
         milestones = self.get("/projects/:project_id/milestones", project_id=project_id)
@@ -90,7 +90,8 @@ class Connection(object):
             'access_level': 40
         }
 
-        self.post_json('/groups/%s/members' % self.default_group, group_json_object)
+        for group in self.default_groups:
+            self.post_json('/groups/%s/members' % group, group_json_object)
 
         if modified_user.get('blocked'):
             self.post_json('/users/:id/block', id=user_id)
