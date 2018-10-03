@@ -54,7 +54,10 @@ if __name__ == "__main__":
                 'name': project_name,
                 'path': project_name,
                 'jobs_enabled': False,
-                'namespace_id': project_group_id
+
             })
+
+            if not project.has_key('namespace_id'):
+                project['namespace_id'] = project_group_id
 
         dest.create_project(project)
