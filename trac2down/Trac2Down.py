@@ -31,12 +31,12 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
 
     text = re.sub(r'\[\[PageOutline.+?\]\]', '\n[[_TOC_]]', text)
 
-    text = re.sub(r'(?m)^======\s+(.*?)\s+======[ ]*$', r'###### \1', text)
-    text = re.sub(r'(?m)^=====\s+(.*?)\s+=====[ ]*$', r'##### \1', text)
-    text = re.sub(r'(?m)^====\s+(.*?)\s+====[ ]*$', r'#### \1', text)
-    text = re.sub(r'(?m)^===\s+(.*?)\s+===[ ]*$', r'### \1', text)
-    text = re.sub(r'(?m)^==\s+(.*?)\s+==[ ]*$', r'## \1', text)
-    text = re.sub(r'(?m)^=\s+(.*?)\s+=[ ]*$', r'# \1', text)
+    text = re.sub(r'(?m)^======\s+(.*?)(\s+======[ ]*)?$', r'###### \1', text)
+    text = re.sub(r'(?m)^=====\s+(.*?)(\s+=====[ ]*)?$', r'##### \1', text)
+    text = re.sub(r'(?m)^====\s+(.*?)(\s+====[ ]*)?$', r'#### \1', text)
+    text = re.sub(r'(?m)^===\s+(.*?)(\s+===[ ]*)?$', r'### \1', text)
+    text = re.sub(r'(?m)^==\s+(.*?)(\s+==[ ]*)?$', r'## \1', text)
+    text = re.sub(r'(?m)^=\s+(.*?)(\s+=[ ]*)?$', r'# \1', text)
     text = re.sub(r'^             * ', r'****', text)
     text = re.sub(r'^         * ', r'***', text)
     text = re.sub(r'^     * ', r'**', text)
