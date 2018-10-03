@@ -26,6 +26,8 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
     text = re.sub(r'(?sm){{{(\n?#![^\n]+)?\n(.*?)\n(  )?}}}', r'```\n\2\n```', text)
 
     text = text.replace('[[TOC]]', '')
+    text = text.replace('[[BR]]\n', '  \n')
+    text = text.replace('[[br]]\n', '  \n')
     text = text.replace('[[BR]]', '\n')
     text = text.replace('[[br]]', '\n')
 
