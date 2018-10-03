@@ -4,7 +4,7 @@
 Copyright © 2018
     Hibox Systems Oy Ab <http://www.hibox.tv>
 
-Creates users based on a predefined configuration file in GitLab. Existing
+Creates users in GitLab based on a predefined configuration file. Existing
 users are not overwritten, unless configured in migrate.cfg.
 
 Use freely under the term of the GPLv3.
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
         # Workaround for https://gitlab.com/gitlab-org/gitlab-ce/issues/51736
         import time
-        time.sleep(5)
+        time.sleep(30)
 
     # Second pass: create non-existing users
     for user in users:
