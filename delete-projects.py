@@ -12,6 +12,7 @@ Use freely under the term of the GPLv3.
 import ConfigParser
 import sys
 from gitlab_api import Connection
+from requests import HTTPError
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -36,10 +37,20 @@ if __name__ == "__main__":
     dest = Connection(gitlab_url, gitlab_access_token, dest_ssl_verify, opts)
 
     for project_name in projects:
-        project_slug = '%s%%2F%s' % (project_group_name, project_name)
+        project = projects[project_name]
+
+        if isinstance(project, dict):
+            group_name = project.get('group_name', project_group_name)
+        else:
+            group_name = project_group_name
+
+        project_slug = '%s%%2F%s' % (group_name, project_name)
 
         try:
             dest.delete_project(project_slug)
-        except:
-            # Ignore exceptions, since they can be raised for non-existing projects.
-            pass
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                # The project does not exist - non-fatal error
+                pass
+            else:
+                raise

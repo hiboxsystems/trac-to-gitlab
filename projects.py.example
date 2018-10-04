@@ -22,7 +22,12 @@ projects = {
     'baz_project': {
         'import_url': 'https://old.git.server.name/your_group_name/baz_project.git',
         'issues_enabled': True,
-        'wiki_enabled': True
+        'wiki_enabled': True,
+
+        # Set the following two properties if you want one or more projects
+        # to be created in some other group than the default one.
+        'group_name': 'external'
+        'namespace_id': 12345
     }
 }
 
