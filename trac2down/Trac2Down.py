@@ -80,20 +80,16 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
             line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
             line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
 
-            # FIXME: Unsure about this part. Let's disable it and see what
-            # the issues look like without it. Is the issue and wiki formatting
-            # different in Trac?
-            #is_bulletpoint_list_row = re.match(r'\S*(-|\*)', line)
-
-            #if not is_bulletpoint_list_row and len(line) > 0:
             # Line endings in Wiki format are to be preserved in the GitLab format.
-            #line = re.sub(r'$', r'  ', line)
             line = re.sub(r'\\\\$', r'  ', line)
 
             if line.startswith('||'):
                 if not is_table:
                     sep = re.sub(r'[^|]', r'-', line)
-                    line = line + '\n' + sep
+
+                    # Prepending with a newline is important, since tables that are "glued together"
+                    # with text right above it will not be rendered correctly in GitLab Markdown.
+                    line = '\n' + line + '\n' + sep
                     is_table = True
 
                 # Sometimes, table cells are separated by |||| instead of || in our wiki content.
