@@ -22,8 +22,12 @@ markdown_extension = 'md' # file extension to use for the generated markdown fil
 
 def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, multilines=True):
     text = re.sub('\r\n', '\n', text)
+
+    # Single-line preformatted text/code block.
     text = re.sub(r'{{{(.*?)}}}', r'`\1`', text)
-    text = re.sub(r'(?sm){{{\s*(\n?#![^\n]+)?\n(.*?)\n[ ]*}}}', r'```\n\2\n```', text)
+
+    # Multi-line performatted text/fenced code blocks.
+    text = re.sub(r'(?sm){{{\s*(\n?#![^\n]+)?\n(.*?)\n([ ]*)}}}', r'```\n\2\n\3```', text)
 
     text = text.replace('[[TOC]]', '')
     text = text.replace('[[BR]]\n', '  \n')
