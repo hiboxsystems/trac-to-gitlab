@@ -35,13 +35,16 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
     text = text.replace('[[BR]]', '\n')
     text = text.replace('[[br]]', '\n')
 
-    text = re.sub(r'\[\[PageOutline.+?\]\]', '\n[[_TOC_]]', text)
+    text = re.sub(r'\[\[PageOutline.*?\]\]', '\n[[_TOC_]]', text)
 
+    # Handle headings of various levels. The (#.+)? optional part is something that can be used
+    # to give headings a particular anchor name => not supported in Markdown, so dropped in the
+    # converted content.
     text = re.sub(r'(?m)^======\s+(.*?)(\s+======[ ]*)?$', r'###### \1', text)
     text = re.sub(r'(?m)^=====\s+(.*?)(\s+=====[ ]*)?$', r'##### \1', text)
     text = re.sub(r'(?m)^====\s+(.*?)(\s+====[ ]*)?$', r'#### \1', text)
-    text = re.sub(r'(?m)^===\s+(.*?)(\s+===[ ]*)?$', r'### \1', text)
-    text = re.sub(r'(?m)^==\s+(.*?)(\s+==[ ]*)?$', r'## \1', text)
+    text = re.sub(r'(?m)^===\s+(.*?)(\s+===[ ]*)?(#.+)?$', r'### \1', text)
+    text = re.sub(r'(?m)^==\s+(.*?)(\s+==[ ]*)?(#.+)?$', r'## \1', text)
     text = re.sub(r'(?m)^=\s+(.*?)(\s+=[ ]*)?$', r'# \1', text)
     text = re.sub(r'^             * ', r'****', text)
     text = re.sub(r'^         * ', r'***', text)
