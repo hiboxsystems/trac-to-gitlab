@@ -447,7 +447,8 @@ def convert_wiki(source, dest):
             name = 'home'
 
         sanitized_name = name.replace('/', '-').lower()
-        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix='uploads/%s' % sanitized_name)
+        upload_prefix = 'uploads/%s' % sanitized_name
+        converted = trac2down.convert(page, os.path.dirname('/wikis/%s' % name), wiki_upload_prefix=upload_prefix)
 
         if method == 'direct' and not ignore_wiki_attachments:
             files_not_linked_to = []
@@ -464,7 +465,7 @@ def convert_wiki(source, dest):
                 dest.save_wiki_attachment(attachment_directory, sanitized_attachment_name, binary_attachment)
                 converted = converted.replace(r'%s/%s)' % (sanitized_name, attachment_filename),
                                                 r'%s/%s)' % (sanitized_name, sanitized_attachment_name))
-                if '%s)' % sanitized_attachment_name not in converted:
+                if '%s/%s)' % (upload_prefix, sanitized_attachment_name) not in converted:
                     files_not_linked_to.append(sanitized_attachment_name)
 
                 print('  ' + sanitized_attachment_name)
