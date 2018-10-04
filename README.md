@@ -40,8 +40,8 @@ This script takes care of the last two bullet points and provides help for the t
 Other scripts
 =============
 
-1. `./delete_projects.py` - deletes all registered projects (good for re-migrating over and over again) based on `projects.py` config. See `projects.py.example` for an example config.
-1. `./create_projects.py` - creates projects based on `projects.py` config.
+1. `./delete-projects.py` - deletes all registered projects (good for re-migrating over and over again) based on `projects.py` config. See `projects.py.example` for an example config.
+1. `./create-projects.py` - creates projects based on `projects.py` config.
 
 Issues and milestones are copied to GitLab.
 
