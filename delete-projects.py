@@ -32,8 +32,7 @@ gitlab_access_token = config.get('target', 'access_token')
 dest_ssl_verify = config.getboolean('target', 'ssl_verify')
 
 if __name__ == "__main__":
-    opts = {
-    }
+    opts = {}
     dest = Connection(gitlab_url, gitlab_access_token, dest_ssl_verify, opts)
 
     for project_name in projects:
