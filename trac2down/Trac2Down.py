@@ -46,6 +46,11 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
     text = re.sub(r'^             * ', r'****', text)
     text = re.sub(r'^         * ', r'***', text)
     text = re.sub(r'^     * ', r'**', text)
+
+    # Bulletpoint, intended one level. These are often used after numbered lists, and to get them to
+    # be properly rendered in Markdown we need to indent them at least four spaces.
+    text = re.sub(r'(?m)^  -', r'     -', text)
+
     text = re.sub(r'^ * ', r'*', text)
     text = re.sub(r'^ \d+. ', r'1.', text)
     text = re.sub(r'\^(.+)\^', r'<sup>\1</sup>', text)
@@ -77,7 +82,10 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
                 if re.search(r'\[\Image\(.+?\)]', line):
                     raise Exception('[Image(foo)] tags are not supported when neither wiki_upload_prefix nor issue_upload_prefix is set')
 
+            # Bold text
             line = re.sub(r"'''\s*(.*?)\s*'''", r'**\1**', line)
+
+            # Italic text
             line = re.sub(r"''\s*(.*?)\s*''", r'_\1_', line)
 
             # Line endings in Wiki format are to be preserved in the GitLab format.
