@@ -96,6 +96,9 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
                 line = re.sub(r'\|\|\|\|', r'|', line)
                 line = re.sub(r'\|\|', r'|', line)
 
+                # Special quirk to deal with tables without headers.
+                line = re.sub(r'=\s+=', '', line)
+
                 # = foo = syntax is used to center table headings in Trac wiki format. The same can be done in GitLab markdown,
                 # but it involves modifying the line afterwards. We KISS and drop the formatting in this case, sacrificing
                 # correctness for keeping the conversion code simpler.
