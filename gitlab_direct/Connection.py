@@ -138,9 +138,10 @@ class Connection(object):
                     title=title,
                     color=self.label_colors.get(title, '#0000FF'),
                     group=self.default_ticket_namespace_id,
-                    type='GroupLabel',
+                    type='ProjectLabel',
                     created_at=new_issue.created_at,
-                    update_at=new_issue.created_at
+                    update_at=new_issue.created_at,
+                    project=dest_project_id
                 )
                 label.save()
             label_link = LabelLinks.create(
