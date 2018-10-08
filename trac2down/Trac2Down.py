@@ -20,7 +20,7 @@ markdown_extension = 'md' # file extension to use for the generated markdown fil
 # Config End
 
 
-def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, multilines=True):
+def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, multilines=True, old_attachment_prefix=None, old_raw_attachment_prefix=None):
     text = re.sub('\r\n', '\n', text)
 
     # Single-line preformatted text/code block.
@@ -76,6 +76,15 @@ def convert(text, base_path, wiki_upload_prefix=None, issue_upload_prefix=None, 
             if wiki_upload_prefix:
                 line = re.sub(r'\[\[Image\(wiki:([^\s\[\]]+):([^\s\[\]]+)\)\]\]', r'![\2](%s/\2)' % wiki_upload_prefix, line)
                 line = re.sub(r'\[\[Image\(([^(]+)\)\]\]', r'![\1](%s/\1)' % wiki_upload_prefix, line)
+
+                # Support for /attachment/wiki/PageName/some_file.pdf syntax
+                line = re.sub(r'\[%s/([^\s\[\]]+)\s([^\[\]]+)\]' % old_attachment_prefix,
+                              r'[\2](%s/\1)' % wiki_upload_prefix, line)
+
+                # Support for /raw-attachment/wiki/PageName/some_file.pdf syntax. Attachments are
+                # always raw in GitLab, so no need to special-case them apart from the prefix.
+                line = re.sub(r'\[%s/([^\s\[\]]+)\s([^\[\]]+)\]' % old_raw_attachment_prefix,
+                              r'[\2](%s/\1)' % wiki_upload_prefix, line)
             elif issue_upload_prefix:
                 if re.search(r'\[\Image\(wiki:.+?\)]', line):
                     raise Exception('[Image(wiki:foo)] tag encountered in non-wiki content. This is not supported.')
