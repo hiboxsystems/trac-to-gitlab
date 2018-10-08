@@ -355,7 +355,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
         if 'milestone' in src_ticket_data and not new_issue.milestone:
             milestone = src_ticket_data['milestone']
-            if milestone and milestone_map_id[milestone]:
+            if milestone and milestone_map_id.get(milestone):
                 new_issue.milestone = milestone_map_id[milestone]
 
         new_ticket = dest.create_issue(dest_project_id, new_issue)
