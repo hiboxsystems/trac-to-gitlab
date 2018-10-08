@@ -416,7 +416,11 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
                         if image_regexp.search(attachment_file_name):
                             image_prefix = '!'
 
-                        note.note = '%s[%s](/uploads/%s)' % (image_prefix, note.note, note.attachment)
+                        attachment_label = note.note
+                        if not attachment_label:
+                            attachment_label = attachment_file_name
+
+                        note.note = '%s[%s](/uploads/%s)' % (image_prefix, attachment_label, note.attachment)
 
                         print("migrating attachment for ticket id %s: %s" % (src_ticket_id, attachment_file_name))
                         binary_attachment = source.ticket.getAttachment(src_ticket_id,
