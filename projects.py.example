@@ -26,7 +26,7 @@ projects = {
 
         # Set the following two properties if you want one or more projects
         # to be created in some other group than the default one.
-        'group_name': 'external'
+        'group_name': 'external',
         'namespace_id': 12345
     }
 }

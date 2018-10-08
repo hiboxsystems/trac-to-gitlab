@@ -58,7 +58,7 @@ class Connection(object):
 
         # Delete all the uses of the labels of the project.
         print("removing labels")
-        for label in Labels.select():
+        for label in Labels.select(Labels.project == project_id):
             LabelLinks.delete().where( LabelLinks.label == label.id ).execute()
             label.delete_instance()
 
