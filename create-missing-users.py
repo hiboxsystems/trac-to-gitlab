@@ -59,5 +59,6 @@ if __name__ == "__main__":
     source = xmlrpclib.ServerProxy(trac_url, encoding = 'UTF-8')
 
     # Create forks of repositories
+    # TODO: Could handle 409 errors which will be raised if the fork already exists.
     for fork_user in fork_users:
         dest.create_fork(fork_user, project_name)
