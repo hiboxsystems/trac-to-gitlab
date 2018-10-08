@@ -37,3 +37,31 @@ for p in projects:
         'https://old.git.server.name',
         'https://user:password@old.git.server.name'
     )
+
+# Define a function with this name if you need to determine the destination project ID dynamically.
+get_dest_project_id_for_issue = None
+get_dest_project_ids = None
+
+# These two functions go together:
+#
+# def get_dest_project_id_for_issue(dest, new_issue)
+#     TODO: implement logic here
+#
+# def get_dest_project_ids(dest):
+#     # Typically find the project IDs from the Connection object somehow.
+#     return [1, 2, 3]
+
+# Define a function with this name if you need to mutate the issues before they are persisted to the
+# GitLab database.
+issue_mutator = None
+
+# Here is an example method that you can adjust freely as you see fit.
+# def issue_mutator(new_issue):
+#     labels = new_issue.labels.split(',')
+#
+#     # The exceptions raised for non-existing labels are harmless and will be ignored.
+#     try:
+#         labels.remove('bad_label')
+#     except ValueError:
+#         pass
+#     new_issue.labels = ','.join(labels)

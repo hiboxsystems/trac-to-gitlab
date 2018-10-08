@@ -45,16 +45,8 @@ Requirements
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-default_config = {
-    'ssl_verify': 'yes',
-    'migrate': 'true',
-    'overwrite': 'true',
-    'exclude_authors': 'trac',
-    'uploads': ''
-}
-
-config = ConfigParser.ConfigParser(default_config)
-config.read('migrate.cfg')
+import config as config_reader
+config = config_reader.config
 
 trac_url = config.get('source', 'url')
 dest_project_name = config.get('target', 'project_name')
@@ -62,6 +54,8 @@ uploads_path = config.get('target', 'uploads')
 default_group = config.get('target', 'default_group')
 
 method = config.get('target', 'method')
+
+from projects import get_dest_project_id_for_issue, get_dest_project_ids, issue_mutator
 
 if method == 'api':
     # TODO: consider dropping this, since we never test it and it doesn't
@@ -167,12 +161,6 @@ def fix_wiki_syntax(markup):
     markup = matcher_changeset2.sub(r'\1', markup)
     return markup
 
-def get_dest_project_id(dest, dest_project_name):
-    dest_project = dest.project_by_name(dest_project_name)
-    if not dest_project:
-        raise ValueError("Project '%s' not found" % dest_project_name)
-    return dest_project["id"]
-
 
 def get_dest_milestone_id(dest, dest_project_id, milestone_name):
     dest_milestone_id = dest.milestone_by_name(dest_project_id, milestone_name)
@@ -181,28 +169,31 @@ def get_dest_milestone_id(dest, dest_project_id, milestone_name):
     return dest_milestone_id["id"]
 
 
-def convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=None):
+def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issues=None,
+                   get_dest_project_id_for_issue=None, issue_mutator=None):
     if only_issues is None: only_issues = []
 
     if overwrite and method == 'direct':
-        dest.clear_issues(dest_project_id, only_issues)
+        for project_id in dest_project_ids:
+            dest.clear_issues(project_id, only_issues)
 
     milestone_map_id = {}
     if convert_milestones:
-        for milestone_name in source.ticket.milestone.getAll():
-            milestone = source.ticket.milestone.get(milestone_name)
-            print("migrated milestone: %s" % milestone_name)
-            new_milestone = Milestones(
-                description=trac2down.convert(fix_wiki_syntax(milestone['description']), '/milestones/', False),
-                title=milestone['name'],
-                state='active' if str(milestone['completed']) == '0' else 'closed'
-            )
-            if method == 'direct':
-                new_milestone.project = dest_project_id
-            if milestone['due']:
-                new_milestone.due_date = convert_xmlrpc_datetime(milestone['due'])
-            new_milestone = dest.create_milestone(dest_project_id, new_milestone)
-            milestone_map_id[milestone_name] = new_milestone.id
+        for dest_project_id in dest_project_ids:
+            for milestone_name in source.ticket.milestone.getAll():
+                milestone = source.ticket.milestone.get(milestone_name)
+                print("migrated milestone: %s" % milestone_name)
+                new_milestone = Milestones(
+                    description=trac2down.convert(fix_wiki_syntax(milestone['description']), '/milestones/', False),
+                    title=milestone['name'],
+                    state='active' if str(milestone['completed']) == '0' else 'closed'
+                )
+                if method == 'direct':
+                    new_milestone.project = dest_project_id
+                if milestone['due']:
+                    new_milestone.due_date = convert_xmlrpc_datetime(milestone['due'])
+                new_milestone = dest.create_milestone(dest_project_id, new_milestone)
+                milestone_map_id[milestone_name] = new_milestone.id
 
     get_all_tickets = xmlrpclib.MultiCall(source)
 
@@ -296,8 +287,6 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
 
                 sanitized_summary = sanitized_summary[title_result.end():].strip()
 
-        print("migrated ticket %s with labels %s" % (src_ticket_id, new_labels))
-
         # FIXME: Would like to put these in deeply nested folder structure instead of dashes, but
         # the GitLab uploads route only supports a single subfolder below uploads:
         # https://github.com/gitlabhq/gitlabhq/blob/master/config/routes/uploads.rb#L22-L25
@@ -314,6 +303,17 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
             state=new_state,
             labels=",".join(new_labels)
         )
+
+        if get_dest_project_id_for_issue:
+            dest_project_id = get_dest_project_id_for_issue(dest, new_issue)
+        else:
+            # No function defined - assume that we have been provided a single project ID.
+            dest_project_id = dest_project_ids[0]
+
+        if issue_mutator:
+            issue_mutator(new_issue)
+
+        print("migrated ticket %s with labels %s" % (src_ticket_id, new_issue.labels.split(',')))
 
         if src_ticket_version:
             if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
@@ -337,6 +337,7 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
         if method == 'direct':
             new_issue.created_at = convert_xmlrpc_datetime(src_ticket[1])
             new_issue.updated_at = convert_xmlrpc_datetime(src_ticket[2])
+
             new_issue.project = dest_project_id
             new_issue.state = new_state
 
@@ -356,6 +357,7 @@ def convert_issues(source, dest, dest_project_id, convert_milestones, only_issue
             milestone = src_ticket_data['milestone']
             if milestone and milestone_map_id[milestone]:
                 new_issue.milestone = milestone_map_id[milestone]
+
         new_ticket = dest.create_issue(dest_project_id, new_issue)
 
         if src_ticket_data['owner'] != '':
@@ -502,10 +504,17 @@ if __name__ == "__main__":
         dest = Connection(db_name, db_user, db_password, db_path, uploads_path, dest_project_name, opts)
 
     source = xmlrpclib.ServerProxy(trac_url)
-    dest_project_id = get_dest_project_id(dest, dest_project_name)
+
+    if get_dest_project_ids:
+        # Converting from a source project to multiple target projects, with a defined function
+        # to determine which the target project is.
+        dest_project_ids = get_dest_project_ids(dest)
+    else:
+        # Converting from a source project to a single target project.
+        dest_project_ids = [dest.project_id_by_name(dest_project_name)]
 
     if must_convert_issues:
-        convert_issues(source, dest, dest_project_id, convert_milestones, only_issues=only_issues)
+        convert_issues(source, dest, dest_project_ids, convert_milestones, only_issues=only_issues, get_dest_project_id_for_issue=get_dest_project_id_for_issue, issue_mutator=issue_mutator)
 
     if must_convert_wiki:
         convert_wiki(source, dest)

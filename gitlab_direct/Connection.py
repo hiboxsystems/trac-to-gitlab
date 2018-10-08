@@ -95,6 +95,12 @@ class Connection(object):
             return project._data
         return None
 
+    def project_id_by_name(self, dest_project_name):
+        dest_project = self.project_by_name(dest_project_name)
+        if not dest_project:
+            raise ValueError("Project '%s' not found" % dest_project_name)
+        return dest_project["id"]
+
     def get_user(self, username):
         return Users.get(Users.username == username)
 
