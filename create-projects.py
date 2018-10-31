@@ -53,9 +53,10 @@ if __name__ == "__main__":
             project.update({
                 'name': project_name,
                 'path': project_name,
-                'jobs_enabled': False,
-
             })
+
+            if not project.has_key('jobs_enabled'):
+                project['jobs_enabled'] = False
 
             if not project.has_key('namespace_id'):
                 project['namespace_id'] = project_group_id
