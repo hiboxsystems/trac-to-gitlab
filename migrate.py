@@ -10,6 +10,7 @@ Copyright © 2013, 2018
 Use freely under the term of the GPLv3.
 '''
 
+from __future__ import unicode_literals
 import argparse
 import re
 import os
@@ -41,9 +42,6 @@ Requirements
  * GitLab
 
 """
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 try:
     # Python 3

@@ -4,13 +4,11 @@
 Copyright © 2018
     Hibox Systems Oy Ab <http://www.hibox.tv>
 
-Creates users in GitLab based on a predefined configuration file. Existing
-users are not overwritten, unless configured in migrate.cfg.
-
 Use freely under the term of the GPLv3.
 '''
 
 import ConfigParser
+import codecs
 
 default_config = {
     'ssl_verify': 'yes',
@@ -21,7 +19,7 @@ default_config = {
 }
 
 config = ConfigParser.ConfigParser(default_config)
-config.read('migrate.cfg')
+config.readfp(codecs.open('migrate.cfg', 'r', 'utf8'))
 
 gitlab_url = config.get('target', 'url')
 gitlab_access_token = config.get('target', 'access_token')
