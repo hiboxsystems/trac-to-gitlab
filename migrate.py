@@ -169,6 +169,8 @@ if args.only_issue:
     elif '-' in args.only_issue:
         start, end = args.only_issue.split('-')
         only_issues = range(int(start), int(end))
+    else:
+        only_issues = [int(args.only_issue)]
 
 if args.wiki:
     must_convert_wiki = True
@@ -258,6 +260,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
     for src_ticket in get_all_tickets():
         src_ticket_id = src_ticket[0]
+
         if only_issues and src_ticket_id not in only_issues:
             print("SKIP unwanted ticket #%s" % src_ticket_id)
             continue
