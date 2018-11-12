@@ -14,12 +14,13 @@ from __future__ import unicode_literals
 import argparse
 import re
 import os
-import ConfigParser
+import config as config_reader
 import ast
 from datetime import datetime
 import xmlrpclib
 import trac2down
 import sys
+
 
 """
 What
@@ -83,7 +84,7 @@ class CasePreservingSet(MutableSet):
         except KeyError:
             pass
 
-import config as config_reader
+component_translation_map = config_reader.component_translation_map
 config = config_reader.config
 
 trac_url = config.get('source', 'url')
@@ -214,6 +215,10 @@ def get_dest_milestone_id(dest, dest_project_id, milestone_name):
     return dest_milestone_id["id"]
 
 
+def translate_component(component):
+    return component_translation_map.get(component, component)
+
+
 def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issues=None,
                    get_dest_project_id_for_issue=None, issue_mutator=None):
     if only_issues is None: only_issues = []
@@ -295,7 +300,10 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
         if src_ticket_component != '':
             for component in src_ticket_component.split(','):
-                new_labels.add(component.strip())
+                translated_component = translate_component(component.strip())
+
+                if translated_component:
+                    new_labels.add(translated_component)
 
         new_state = 'opened'
         if src_ticket_status == 'new':

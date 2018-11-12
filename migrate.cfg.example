@@ -92,5 +92,10 @@ label_prefix_translation_map = {
         'foo': 'common'
     }
 
+# Can be used to map Trac components to GitLab labels. (source => target)
+component_translation_map = {
+        'some_component': 'NewGitlabLabel'
+    }
+
 # If defined, import only these issues
 #only_issues: [ 509, 561, 564, 626, 631, 792, 830]
