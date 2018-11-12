@@ -100,7 +100,7 @@ parser.add_argument('--issues',
                     help="migrate issues (default: false)",
                     action="store_true")
 parser.add_argument("--only-issue",
-                    help="migrate one or more specific issues instead of all. Separate multiple issues with a comma: 123,456,789")
+                    help="migrate one or more specific issues instead of all. Separate multiple issues with a comma: 123,456,789 or ranges: 123-456")
 parser.add_argument('--wiki',
                     help="migrate wiki pages (default: false)",
                     action="store_true")
@@ -123,7 +123,12 @@ if args.issues:
 if args.only_issue:
     must_convert_issues = True
     convert_milestones = False
-    only_issues = map(int, args.only_issue.split(','))
+
+    if ',' in args.only_issue:
+        only_issues = map(int, args.only_issue.split(','))
+    elif '-' in args.only_issue:
+        start, end = args.only_issue.split('-')
+        only_issues = range(int(start), int(end))
 
 if args.wiki:
     must_convert_wiki = True
