@@ -323,23 +323,29 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         else:
             print("!!! unknown ticket status: %s" % src_ticket_status)
 
-        sanitized_summary = src_ticket_data['summary']
-        title_result = title_label_regexp.search(sanitized_summary)
+        summary = src_ticket_data['summary']
+        sanitized_summary = None
+        title_result = title_label_regexp.search(summary)
+
         if title_result:
-            prefix = title_result.group(1).lower()
+            prefix = title_result.group(1)
+            lowercased_prefix = prefix.lower()
 
             # Awkward way, but prefix.translate() works differently on str and unicode objects so
             # this is good enough for now.
-            prefix = prefix.replace('[', '').replace(']', '').replace(':', '')
-            prefix = label_prefix_translation_map.get(prefix, '')
+            mangled_prefix = lowercased_prefix.replace('[', '').replace(']', '').replace(':', '')
+            translated_prefix = label_prefix_translation_map.get(mangled_prefix, '')
 
-            if prefix != '':
+            if translated_prefix != '':
                 # Prefix found in whitelist. None values have a special meaning, indicate: "Remove
                 # this prefix, but don't add a label".
-                if prefix != None:
-                    new_labels.add(prefix)
+                if translated_prefix != None:
+                    new_labels.add(translated_prefix)
 
-                sanitized_summary = sanitized_summary[title_result.end():].strip()
+                sanitized_summary = summary[title_result.end():].strip()
+
+        if not sanitized_summary:
+            sanitized_summary = summary
 
         # FIXME: Would like to put these in deeply nested folder structure instead of dashes, but
         # the GitLab uploads route only supports a single subfolder below uploads:
