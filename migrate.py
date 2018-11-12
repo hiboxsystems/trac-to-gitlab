@@ -45,6 +45,46 @@ Requirements
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+try:
+    # Python 3
+    from collections.abc import MutableSet
+except ImportError:
+    # Python 2
+    from collections import MutableSet
+
+class CasePreservingSet(MutableSet):
+    def __init__(self, *values):
+        self._values = {}
+        for v in values:
+            self.add(v)
+
+    def __repr__(self):
+        return '<{}{} at {:x}>'.format(
+            type(self).__name__, tuple(self._values.values()), id(self))
+
+    def __contains__(self, value):
+        return value.lower() in self._values
+
+    def __iter__(self):
+        try:
+            # Python 2
+            return self._values.itervalues()
+        except AttributeError:
+            # Python 3
+            return iter(self._values.values())
+
+    def __len__(self):
+        return len(self._values)
+
+    def add(self, value):
+        self._values[value.lower()] = value
+
+    def discard(self, value):
+        try:
+            del self._values[value.lower()]
+        except KeyError:
+            pass
+
 import config as config_reader
 config = config_reader.config
 
@@ -230,7 +270,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         src_ticket_component = src_ticket_data['component']
         src_ticket_version = src_ticket_data['version']
 
-        new_labels = set()
+        new_labels = CasePreservingSet()
         if src_ticket_priority == 'high':
             new_labels.add('high priority')
         elif src_ticket_priority == 'medium':
@@ -282,11 +322,13 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             # Awkward way, but prefix.translate() works differently on str and unicode objects so
             # this is good enough for now.
             prefix = prefix.replace('[', '').replace(']', '').replace(':', '')
-            prefix = label_prefix_translation_map.get(prefix, None)
+            prefix = label_prefix_translation_map.get(prefix, '')
 
-            # Only prefixes specifically included in the whitelist get replaced.
-            if prefix != None:
-                new_labels.add(prefix)
+            if prefix != '':
+                # Prefix found in whitelist. None values have a special meaning, indicate: "Remove
+                # this prefix, but don't add a label".
+                if prefix != None:
+                    new_labels.add(prefix)
 
                 sanitized_summary = sanitized_summary[title_result.end():].strip()
 
