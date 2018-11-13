@@ -335,13 +335,12 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         elif src_ticket_status == 'reopened':
             # There is no 'reopened' state in GitLab.
             new_state = 'opened'
-            new_labels.add('reopened')
         elif src_ticket_status == 'closed':
             new_state = 'closed'
         elif src_ticket_status == 'accepted':
-            new_labels.add(src_ticket_status)
+            new_labels.add('Do')
         elif src_ticket_status == 'reviewing' or src_ticket_status == 'testing':
-            new_labels.add(src_ticket_status)
+            new_labels.add('Check')
         else:
             print("!!! Unknown ticket status: %s, not preserving in migrated data" % src_ticket_status)
 
