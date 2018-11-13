@@ -1,4 +1,4 @@
-# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
+# -*- coding: utf-8 -*-
 
 '''
 Copyright © 2018
@@ -10,6 +10,13 @@ Use freely under the term of the GPLv3.
 import ConfigParser
 import ast
 import codecs
+
+# Not used by us, but re-exported for our clients.
+from migrate_config import \
+    component_translation_map, \
+    keywords_map, \
+    label_colors, \
+    label_prefix_translation_map
 
 default_config = {
     'ssl_verify': 'yes',
@@ -25,8 +32,3 @@ config.readfp(codecs.open('migrate.cfg', 'r', 'utf8'))
 gitlab_url = config.get('target', 'url')
 gitlab_access_token = config.get('target', 'access_token')
 dest_ssl_verify = config.getboolean('target', 'ssl_verify')
-
-try:
-    component_translation_map = ast.literal_eval(config.get('issues', 'component_translation_map'))
-except ConfigParser.NoOptionError:
-    component_translation_map = {}

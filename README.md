@@ -30,7 +30,8 @@ This script takes care of the last two bullet points and provides help for the t
 
   1. Install dependencies: `pip install -r requirements.txt`
   1. `cp migrate.cfg.example migrate.cfg`
-  1. Edit `migrate.cfg`, tweaking the values to your needs.
+  1. `cp migrate_config.py.example migrate_config.py`
+  1. Edit `migrate.cfg`, tweaking the values to your needs. Likewise with `migrate_config.py`.
   1. Run `./collect-users.py` to extract the user names from Trac
   1. Update `migrate.cfg` to map users to email addresses.
   1. Create `users.py` with your list of users.

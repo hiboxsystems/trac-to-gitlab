@@ -7,3 +7,4 @@
 env
 users.py
 projects.py
+migrate_config.py

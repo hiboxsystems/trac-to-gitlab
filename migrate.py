@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python fileencoding=utf-8
+# -*- coding: utf-8 -*-
 
 '''
 Copyright © 2013, 2018
@@ -58,8 +58,9 @@ class CasePreservingSet(MutableSet):
             self.add(v)
 
     def __repr__(self):
-        return '<{}{} at {:x}>'.format(
-            type(self).__name__, tuple(self._values.values()), id(self))
+        return '<{} at {:x}>'.format(
+           tuple(self._values.values()), id(self)
+        )
 
     def __contains__(self, value):
         return value.lower() in self._values
@@ -84,14 +85,16 @@ class CasePreservingSet(MutableSet):
         except KeyError:
             pass
 
-component_translation_map = config_reader.component_translation_map
 config = config_reader.config
+component_translation_map = config_reader.component_translation_map
+keywords_map = config_reader.keywords_map
+label_colors = config_reader.label_colors
+label_prefix_translation_map = config_reader.label_prefix_translation_map
 
 trac_url = config.get('source', 'url')
 dest_project_name = config.get('target', 'project_name')
 uploads_path = config.get('target', 'uploads')
 default_group = config.get('target', 'default_group')
-
 method = config.get('target', 'method')
 
 from projects import get_dest_project_id_for_issue, get_dest_project_ids, issue_mutator
@@ -117,7 +120,6 @@ elif method == 'direct':
     overwrite = config.getboolean('target', 'overwrite')
 
 users_map = ast.literal_eval(config.get('target', 'usernames'))
-label_colors = ast.literal_eval(config.get('issues', 'label_colors'))
 
 default_user = None
 if config.has_option('target', 'default_user'):
@@ -126,10 +128,6 @@ if config.has_option('target', 'default_user'):
 only_issues = None
 if config.has_option('issues', 'only_issues'):
     only_issues = ast.literal_eval(config.get('issues', 'only_issues'))
-
-label_prefix_translation_map = {}
-if config.has_option('issues', 'label_prefix_translation_map'):
-    label_prefix_translation_map = ast.literal_eval(config.get('issues', 'label_prefix_translation_map'))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-convert-milestones',
@@ -167,7 +165,9 @@ if args.only_issue:
         only_issues = map(int, args.only_issue.split(','))
     elif '-' in args.only_issue:
         start, end = args.only_issue.split('-')
-        only_issues = range(int(start), int(end))
+
+        # The +1 is needed to get 6000-7000 to behave as the user would expect, i.e. include issue number 7000 also.
+        only_issues = range(int(start), int(end) + 1)
     else:
         only_issues = [int(args.only_issue)]
 
@@ -219,6 +219,10 @@ def translate_component(component):
     return component_translation_map.get(component, component)
 
 
+def translate_keyword(keyword):
+    return keywords_map.get(keyword, keyword)
+
+
 def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issues=None,
                    get_dest_project_id_for_issue=None, issue_mutator=None):
     if only_issues is None: only_issues = []
@@ -268,6 +272,8 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             print("SKIP unwanted ticket #%s" % src_ticket_id)
             continue
 
+        print 'migrating ticket %d' % src_ticket_id
+
         src_ticket_data = src_ticket[3]
 
         src_ticket_priority = src_ticket_data['priority']
@@ -275,6 +281,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         src_ticket_status = src_ticket_data['status']
         src_ticket_component = src_ticket_data['component']
         src_ticket_version = src_ticket_data['version']
+        src_ticket_keywords = re.split(r'[, ]', src_ticket_data['keywords'])
 
         new_labels = CasePreservingSet()
         if src_ticket_priority == 'high':
@@ -300,10 +307,25 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
         if src_ticket_component != '':
             for component in src_ticket_component.split(','):
-                translated_component = translate_component(component.strip())
+                component = component.strip()
+                translated_component = translate_component(component)
 
                 if translated_component:
                     new_labels.add(translated_component)
+                else:
+                    print('    WARN: Dropping component %s' % component)
+
+        for keyword in src_ticket_keywords:
+            keyword = keyword.strip()
+            if not keyword:
+                continue
+
+            translated_keyword = translate_keyword(keyword)
+
+            if translated_keyword:
+                new_labels.add(translated_keyword)
+            else:
+                print('    WARN: Dropping keyword %s' % keyword)
 
         new_state = 'opened'
         if src_ticket_status == 'new':
@@ -321,7 +343,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         elif src_ticket_status == 'reviewing' or src_ticket_status == 'testing':
             new_labels.add(src_ticket_status)
         else:
-            print("!!! unknown ticket status: %s" % src_ticket_status)
+            print("!!! Unknown ticket status: %s, not preserving in migrated data" % src_ticket_status)
 
         summary = src_ticket_data['summary']
         sanitized_summary = None
@@ -337,9 +359,11 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             translated_prefix = label_prefix_translation_map.get(mangled_prefix, '')
 
             if translated_prefix != '':
-                # Prefix found in whitelist. None values have a special meaning, indicate: "Remove
-                # this prefix, but don't add a label".
-                if translated_prefix != None:
+                if translated_prefix == None:
+                    # None values have a special meaning, indicate: "Remove this prefix, but don't add a label".
+                    print('    !!! Dropping prefix %s' % mangled_prefix)
+                else:
+                    # Prefix found in whitelist.
                     new_labels.add(translated_prefix)
 
                 sanitized_summary = summary[title_result.end():].strip()
@@ -373,7 +397,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         if issue_mutator:
             issue_mutator(new_issue)
 
-        print("migrated ticket %s with labels %s" % (src_ticket_id, new_issue.labels.split(',')))
+        print("    Final set of labels: %s" % new_issue.labels.split(','))
 
         if src_ticket_version:
             if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
@@ -381,7 +405,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             else:
                 release_milestone_name = 'release-%s' % src_ticket_version
                 if release_milestone_name not in milestone_map_id:
-                    print("creating new milestone for %s" % release_milestone_name)
+                    print("    creating new milestone for %s" % release_milestone_name)
                     new_milestone = Milestones(
                         title=release_milestone_name,
                         description='',
@@ -482,7 +506,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
                         note.note = '%s[%s](/uploads/%s)' % (image_prefix, attachment_label, note.attachment)
 
-                        print("migrating attachment for ticket id %s: %s" % (src_ticket_id, attachment_file_name))
+                        print("    migrating attachment for ticket id %s: %s" % (src_ticket_id, attachment_file_name))
                         binary_attachment = source.ticket.getAttachment(src_ticket_id,
                                                                         attachment_file_name.encode('utf8')).data
 

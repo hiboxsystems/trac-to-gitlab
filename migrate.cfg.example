@@ -81,21 +81,5 @@ target-directory: /tmp/test.wiki/
 
 [issues]
 
-# Used to set the colors for labels as they are created in the GitLab database.
-label_colors = {
-        'some_label': '#8080FF',
-        'invalid': '#FF0000'
-    }
-
-# Can be used to map [foo] or foo: as prefix in issue titles to issue labels.
-label_prefix_translation_map = {
-        'foo': 'common'
-    }
-
-# Can be used to map Trac components to GitLab labels. (source => target)
-component_translation_map = {
-        'some_component': 'NewGitlabLabel'
-    }
-
 # If defined, import only these issues
 #only_issues: [ 509, 561, 564, 626, 631, 792, 830]
