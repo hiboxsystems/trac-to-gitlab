@@ -136,7 +136,9 @@ class Connection(object):
             updated_at=new_issue.created_at
         )
         event.save()
-        for title in set(new_issue.labels.split(',')):
+
+        for title in set(new_issue.labels):
+            # Get the label, creating it if it doesn't exist.
             try:
                 label = Labels.get(Labels.title == title)
             except:
@@ -150,6 +152,7 @@ class Connection(object):
                     project=dest_project_id
                 )
                 label.save()
+
             label_link = LabelLinks.create(
                 label=label.id,
                 target=new_issue.id,
@@ -158,6 +161,7 @@ class Connection(object):
                 update_at=new_issue.created_at
             )
             label_link.save()
+
         return new_issue
 
     def assign_issue(self, new_issue_assignment):

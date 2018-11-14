@@ -384,7 +384,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
                 issue_upload_prefix='/uploads/' + issue_attachment_path
             ),
             state=new_state,
-            labels=",".join(new_labels)
+            labels=new_labels
         )
 
         if get_dest_project_id_for_issue:
@@ -396,7 +396,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         if issue_mutator:
             issue_mutator(new_issue)
 
-        print("    Final set of labels: %s" % new_issue.labels.split(','))
+        print("    Final set of labels: %s" % new_issue.labels)
 
         if src_ticket_version:
             if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
