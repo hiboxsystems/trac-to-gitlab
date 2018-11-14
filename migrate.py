@@ -276,6 +276,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
         src_ticket_data = src_ticket[3]
 
+        src_ticket_billable = src_ticket_data['billable']
         src_ticket_priority = src_ticket_data['priority']
         src_ticket_resolution = src_ticket_data['resolution']
         src_ticket_status = src_ticket_data['status']
@@ -284,6 +285,10 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         src_ticket_keywords = re.split(r'[, ]', src_ticket_data['keywords'])
 
         new_labels = CasePreservingSet()
+
+        if src_ticket_billable == '1':
+            new_labels.add('billable')
+
         if src_ticket_priority == 'high':
             new_labels.add('high priority')
         elif src_ticket_priority == 'medium':
