@@ -20,3 +20,10 @@ label_colors = {
 label_prefix_translation_map = {
     'some_prefix': 'NewGitlabLabel'
 }
+
+# Trac versions are mapped to milestones. Trac milestones which have a value in this map get
+# converted to a GitLab label with the provided name. Note that a single milestone can be converted
+# to multiple labels.
+milestone_map = {
+    'some_milestone': ["label1", "label2"],
+}

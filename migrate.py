@@ -90,6 +90,7 @@ component_translation_map = config_reader.component_translation_map
 keywords_map = config_reader.keywords_map
 label_colors = config_reader.label_colors
 label_prefix_translation_map = config_reader.label_prefix_translation_map
+milestone_map = config_reader.milestone_map
 
 trac_url = config.get('source', 'url')
 dest_project_name = config.get('target', 'project_name')
@@ -223,6 +224,11 @@ def translate_keyword(keyword):
     return keywords_map.get(keyword, keyword)
 
 
+def translate_milestone(milestone):
+    result = milestone_map.get(milestone, [])
+    return result or []
+
+
 def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issues=None,
                    get_dest_project_id_for_issue=None, issue_mutator=None):
     if only_issues is None: only_issues = []
@@ -277,17 +283,22 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         src_ticket_data = src_ticket[3]
 
         src_ticket_billable = src_ticket_data['billable']
+        src_ticket_component = src_ticket_data['component']
+        src_ticket_keywords = re.split(r'[, ]', src_ticket_data['keywords'])
+        src_ticket_milestone = src_ticket_data['milestone']
         src_ticket_priority = src_ticket_data['priority']
         src_ticket_resolution = src_ticket_data['resolution']
         src_ticket_status = src_ticket_data['status']
-        src_ticket_component = src_ticket_data['component']
         src_ticket_version = src_ticket_data['version']
-        src_ticket_keywords = re.split(r'[, ]', src_ticket_data['keywords'])
 
         new_labels = CasePreservingSet()
 
         if src_ticket_billable == '1':
             new_labels.add('billable')
+
+        if src_ticket_milestone:
+            for label in translate_milestone(src_ticket_milestone):
+                new_labels.add(label)
 
         if src_ticket_priority == 'high':
             new_labels.add('high priority')
