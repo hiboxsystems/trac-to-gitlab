@@ -144,7 +144,7 @@ class Connection(object):
             except:
                 label = Labels.create(
                     title=title,
-                    color=self.label_colors.get(title, '#0000FF'),
+                    color=self.label_colors.get(title, '#FFECDB'),
                     group=self.default_ticket_namespace_id,
                     type='ProjectLabel',
                     created_at=new_issue.created_at,
