@@ -396,7 +396,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
         if issue_mutator:
             issue_mutator(new_issue)
 
-        print("    Final set of labels: %s" % new_issue.labels)
+        print("    Final set of labels: %s" % ', '.join(new_issue.labels))
 
         if src_ticket_version:
             if src_ticket_version == 'trunk' or src_ticket_version == 'dev':
