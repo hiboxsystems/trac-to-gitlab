@@ -10,8 +10,9 @@ Features
  * Supports two modes of tansfer:
   * Using GitLab web API
   * Direct access through GitLab's database and file system
- * In direct mode, attachments are transfered and the issues and notes dates and ownership are preserved
- * In API mode, attachments are not transfered, issues and notes are owned by a single user and their dates are the current date.
+ * In direct mode, attachments are transferred and the issues and notes dates and ownership are preserved
+ * In API mode, attachments are not transferred, issues and notes are owned by a single user and their dates are the current date.
+ * '''NOTE''': The way we have used this internally is to use direct mode for the `migrate.py` script but API mode for the other (more recently written) scripts. This is the only recommended mode at the moment; you will likely have to patch the code to get it working if you want to use "direct mode for everything" or "API mode for everything".
 
 How
 ====
