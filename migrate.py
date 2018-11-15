@@ -282,7 +282,7 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
 
         src_ticket_data = src_ticket[3]
 
-        src_ticket_billable = src_ticket_data['billable']
+        src_ticket_billable = src_ticket_data.get('billable', '0')
         src_ticket_component = src_ticket_data['component']
         src_ticket_keywords = re.split(r'[, ]', src_ticket_data['keywords'])
         src_ticket_milestone = src_ticket_data['milestone']
