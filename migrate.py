@@ -348,12 +348,14 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             new_state = 'opened'
         elif src_ticket_status == 'assigned':
             new_state = 'opened'
+            new_labels.add('Do')
         elif src_ticket_status == 'reopened':
             # There is no 'reopened' state in GitLab.
             new_state = 'opened'
         elif src_ticket_status == 'closed':
             new_state = 'closed'
         elif src_ticket_status == 'accepted':
+            new_state = 'opened'
             new_labels.add('Do')
         elif src_ticket_status == 'reviewing' or src_ticket_status == 'testing':
             new_labels.add('Check')
