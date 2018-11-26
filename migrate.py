@@ -363,30 +363,35 @@ def convert_issues(source, dest, dest_project_ids, convert_milestones, only_issu
             print("!!! Unknown ticket status: %s, not preserving in migrated data" % src_ticket_status)
 
         summary = src_ticket_data['summary']
-        sanitized_summary = None
-        title_result = title_label_regexp.search(summary)
+        sanitized_summary = summary
+        done = False
 
-        if title_result:
-            prefix = title_result.group(1)
-            lowercased_prefix = prefix.lower()
+        while not done:
+            title_result = title_label_regexp.search(sanitized_summary)
 
-            # Awkward way, but prefix.translate() works differently on str and unicode objects so
-            # this is good enough for now.
-            mangled_prefix = lowercased_prefix.replace('[', '').replace(']', '').replace(':', '')
-            translated_prefix = label_prefix_translation_map.get(mangled_prefix, '')
+            if title_result:
+                prefix = title_result.group(1)
+                lowercased_prefix = prefix.lower()
 
-            if translated_prefix != '':
-                if translated_prefix == None:
-                    # None values have a special meaning, indicate: "Remove this prefix, but don't add a label".
-                    print('    !!! Dropping prefix %s' % mangled_prefix)
+                # Awkward way, but prefix.translate() works differently on str and unicode objects so
+                # this is good enough for now.
+                mangled_prefix = lowercased_prefix.replace('[', '').replace(']', '').replace(':', '')
+                translated_prefix = label_prefix_translation_map.get(mangled_prefix, '')
+
+                if translated_prefix != '':
+                    if translated_prefix == None:
+                        # None values have a special meaning, indicate: "Remove this prefix, but don't add a label".
+                        print('    !!! Dropping prefix %s' % mangled_prefix)
+                    else:
+                        # Prefix found in whitelist.
+                        new_labels.add(translated_prefix)
+
+                    sanitized_summary = sanitized_summary[title_result.end():].strip()
                 else:
-                    # Prefix found in whitelist.
-                    new_labels.add(translated_prefix)
-
-                sanitized_summary = summary[title_result.end():].strip()
-
-        if not sanitized_summary:
-            sanitized_summary = summary
+                    # Prefix doesn't exist in mangling map. Leave it as-is, has to be manually handled.
+                    done = True
+            else:
+                done = True
 
         # FIXME: Would like to put these in deeply nested folder structure instead of dashes, but
         # the GitLab uploads route only supports a single subfolder below uploads:
