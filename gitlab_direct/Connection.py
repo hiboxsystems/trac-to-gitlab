@@ -34,6 +34,7 @@ class Connection(object):
             self.default_ticket_namespace_id = Namespaces.get(Namespaces.name == default_ticket_namespace).id
 
         self.label_colors = opts.get('label_colors', {})
+        self.label_descriptions = opts.get('label_descriptions', {})
 
     def clear_issues(self, project_id, issue_ids):
         if issue_ids:
@@ -142,9 +143,13 @@ class Connection(object):
             try:
                 label = Labels.get(Labels.title == title)
             except:
+                description = self.label_descriptions.get(title, None)
+
                 label = Labels.create(
                     title=title,
                     color=self.label_colors.get(title, '#FFECDB'),
+                    description=description,
+                    description_html=description,
                     group=self.default_ticket_namespace_id,
                     type='ProjectLabel',
                     created_at=new_issue.created_at,

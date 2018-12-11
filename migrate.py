@@ -89,6 +89,7 @@ config = config_reader.config
 component_translation_map = config_reader.component_translation_map
 keywords_map = config_reader.keywords_map
 label_colors = config_reader.label_colors
+label_descriptions = config_reader.label_descriptions
 label_prefix_translation_map = config_reader.label_prefix_translation_map
 milestone_map = config_reader.milestone_map
 
@@ -617,7 +618,8 @@ if __name__ == "__main__":
     elif method == 'direct':
         opts = {
             'default_ticket_namespace': default_group,
-            'label_colors': label_colors
+            'label_colors': label_colors,
+            'label_descriptions': label_descriptions
         }
         dest = Connection(db_name, db_user, db_password, db_path, uploads_path, dest_project_name, opts)
 

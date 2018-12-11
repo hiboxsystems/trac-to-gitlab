@@ -16,6 +16,12 @@ label_colors = {
     'invalid': '#FF0000'
 }
 
+# Can be used to set the description field for particular labels. Will be left
+# empty if unset for a given label.
+label_descriptions = {
+    'some_label': 'some_description'
+}
+
 # Can be used to map [foo] or foo: as prefix in issue titles to issue labels.
 label_prefix_translation_map = {
     'some_prefix': 'NewGitlabLabel'

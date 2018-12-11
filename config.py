@@ -16,6 +16,7 @@ from migrate_config import \
     component_translation_map, \
     keywords_map, \
     label_colors, \
+    label_descriptions, \
     label_prefix_translation_map, \
     milestone_map
 
